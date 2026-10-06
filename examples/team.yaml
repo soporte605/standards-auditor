@@ -1,0 +1,10 @@
+schema-version: 1
+name: team-conventions
+rules:
+  - id: team.required-docs
+    detector: required-files
+    severity: error
+    description: Incluye los documentos acordados por el equipo.
+    files:
+      - CONTRIBUTING.md
+      - CHANGELOG.md

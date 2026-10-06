@@ -1,32 +1,35 @@
 # Arquitectura
 
-## Objetivo
+## Motor TypeScript
 
-Auditar estándares configurables de cualquier equipo. El lenguaje del motor no limita los lenguajes auditables; cada lenguaje requiere analizadores y reglas apropiados.
+La CLI se compila a JavaScript ESM y se distribuye como paquete npm para Node.js 22+. El motor no requiere Angular, Vitest ni un `package.json` en el proyecto auditado. Un equipo de otro lenguaje puede usar los detectores de archivos, aunque necesita Node.js para ejecutar esta distribución.
 
-## Separación
+- `src/cli.ts`: comandos, mensajes y códigos de salida.
+- `src/config.ts`: esquemas estrictos con Zod, lectura YAML y resolución de paquetes.
+- `src/engine.ts`: ejecución de detectores y hallazgos normalizados.
+- `packs/*.yaml`: configuración declarativa de los detectores incorporados.
+- `test/cli.test.mjs`: pruebas de la interfaz pública en proyectos temporales.
 
-- `auditor-cli`: argumentos, salida y códigos de terminación.
-- `auditor-core`: contratos de reglas y hallazgos. El ejecutor se implementará después.
-- Paquetes: manifiestos declarativos con identidad, versión, compatibilidad, reglas y valores predeterminados.
-- Adaptadores: interpretación específica del lenguaje o framework, inicialmente TypeScript/Angular.
+## Flujo
 
-Solo existen las dos primeras crates. Crear nuevas crates al implementar responsabilidades concretas.
+Configuración → validación → carga de paquetes → overrides de severidad → descubrimiento de archivos → detectores → reporte.
 
-## Configuración propuesta
+El documento de configuración y los manifiestos declaran `schema-version: 1`. Se rechazan claves desconocidas, detectores desconocidos, reglas duplicadas y overrides inexistentes, incluidas reglas deshabilitadas mal escritas. Las rutas relativas usan la carpeta de configuración como raíz y los patrones usan `/`. No se permiten rutas absolutas ni segmentos `..` en paquetes o alcances declarados.
 
-YAML configura detectores disponibles; una frase en lenguaje natural no constituye un detector. Se rechazarán claves desconocidas, versiones incompatibles y reglas no soportadas, en lugar de ignorarlas. Las rutas se resolverán respecto a la raíz explícita del proyecto. Las exclusiones se aplicarán antes del análisis.
+Los paquetes locales son archivos de configuración de confianza del equipo, no un sandbox. No ejecutan código. Los enlaces simbólicos no constituyen una frontera de seguridad y solo debe auditarse contenido autorizado.
 
-Los paquetes podrán definir reglas mediante detectores soportados y parámetros. Las reglas sintácticas necesitarán un analizador. La extensión mediante código externo se evaluará después; no se cargarán bibliotecas nativas arbitrarias como parte del primer MVP.
+## Detectores actuales
 
-## Reportes previstos
+`required-files`: comprueba que cada ruta sea un archivo. Un error de permisos se informa como error operativo, no como incumplimiento.
 
-Consola y JSON deterministas: identificador de regla, severidad, explicación, ruta y ubicación si existe. Códigos previstos: `0` sin errores de auditoría, `1` incumplimientos de severidad error, `2` fallo de uso, configuración o ejecución. Las advertencias no bloquearán por defecto.
+`typescript-no-any`: recorre el AST de TypeScript en busca de usos explícitos del tipo `any`.
 
-## Límites
+`typescript-no-suppression`: inspecciona comentarios asociados al AST para detectar directivas de supresión. No marca cadenas o template literals que solo contienen ese texto.
 
-Formato SemVer y consistencia entre archivos son comprobables. Determinar el incremento correcto requiere una base de comparación y evidencia de cambios de API; no se inferirá únicamente del número de versión.
+El AST es sintáctico; estos detectores no validan compilación ni resuelven los tipos del proyecto. Añadir otro lenguaje requiere su propio adaptador. El reporte ordena hallazgos por ruta, línea y regla. `analyzedFiles` cuenta fuentes únicas, no documentos cuya existencia se comprueba.
 
-La existencia de documentación no demuestra su calidad. Las reglas cualitativas se marcarán como revisión manual cuando no haya un detector fiable.
+## Contratos y límites
 
-El MVP audita. Cambiar versiones, generar changelog, corregir archivos y publicar releases quedan fuera de esa primera entrega.
+Consola y JSON (`schemaVersion: 1`); códigos `0` sin errores de reglas, `1` incumplimientos error, `2` fallos operativos. Alcances vacíos generan notas explícitas. Las advertencias no bloquean por defecto.
+
+SemVer, changelog, cobertura, reglas de Vitest/Angular, instalación remota de paquetes y correcciones automáticas están pendientes. La arquitectura permanece modular sin crear paquetes npm internos antes de necesitarlos.

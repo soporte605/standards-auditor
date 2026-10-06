@@ -1,0 +1,42 @@
+{
+  "name": "standards-auditor",
+  "version": "0.1.0-dev.0",
+  "description": "Auditor configurable de est\u00e1ndares de ingenier\u00eda mediante paquetes YAML",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "standards-auditor": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "packs/*.yaml",
+    "docs",
+    "CHANGELOG.md",
+    "README.md",
+    "examples",
+    "CONTRIBUTING.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "check": "npm run typecheck && npm run format:check && npm test",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "glob": "^13.0.6",
+    "typescript": "~5.9.3",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "prettier": "^3.9.9"
+  }
+}

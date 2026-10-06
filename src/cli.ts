@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { parseArgs } from 'node:util';
+import { loadConfig } from './config.js';
+import { audit } from './engine.js';
+
+const initialConfig = `# Activa solo los paquetes que correspondan a tu proyecto.
+schema-version: 1
+packs:
+  - builtin:docs
+  # - builtin:typescript-tests
+  # - ./rules/team.yaml
+exclude: []
+rules: {}
+`;
+
+async function main(): Promise<number> {
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    strict: true,
+    options: {
+      help: { type: 'boolean', short: 'h' },
+      version: { type: 'boolean', short: 'V' },
+      config: { type: 'string', short: 'c' },
+      format: { type: 'string' },
+    },
+  });
+  if (values.help || (positionals.length === 0 && !values.version)) {
+    console.log(`standards-auditor — estándares configurables por equipo
+
+Uso:
+  standards-auditor init                  Crear auditor.yaml sin sobrescribirlo
+  standards-auditor check                 Auditar el proyecto
+  standards-auditor check --format json   Emitir un reporte JSON
+  standards-auditor explain <regla>       Explicar una regla habilitada
+
+Opciones: --config <ruta>, --help, --version
+Códigos: 0 sin errores, 1 incumplimientos, 2 error de configuración o ejecución.
+No ejecuta pruebas ni modifica archivos durante la auditoría.`);
+    return 0;
+  }
+  if (values.version) {
+    const metadata: unknown = JSON.parse(
+      await readFile(new URL('../package.json', import.meta.url), 'utf8'),
+    );
+    if (!metadata || typeof metadata !== 'object' || !('version' in metadata))
+      throw new Error('Versión no disponible');
+    console.log(`standards-auditor ${String(metadata.version)}`);
+    return 0;
+  }
+  const [command, id, ...extra] = positionals;
+  if (
+    !['init', 'check', 'explain'].includes(command ?? '') ||
+    extra.length ||
+    (command === 'explain' ? !id : id !== undefined)
+  )
+    throw new Error('Comando inválido. Consulta --help.');
+  if (
+    values.format !== undefined &&
+    (command !== 'check' || !['text', 'json'].includes(values.format))
+  ) {
+    throw new Error('Usa --format text o --format json con check.');
+  }
+  const configFile = path.resolve(values.config ?? 'auditor.yaml');
+  if (command === 'init') {
+    await writeFile(configFile, initialConfig, { flag: 'wx' });
+    console.log(
+      `Configuración creada: ${configFile}\nEdita sus paquetes y ejecuta standards-auditor check.`,
+    );
+    return 0;
+  }
+  const config = await loadConfig(configFile);
+  if (command === 'explain') {
+    const rule = config.rules.find((item) => item.id === id);
+    if (!rule) throw new Error(`Regla desconocida o deshabilitada: ${id}`);
+    console.log(
+      `${rule.id} (${rule.severity})\n${rule.description}\nDetector: ${rule.detector}\nAlcance: ${('files' in rule ? rule.files : rule.include).join(', ')}`,
+    );
+    return 0;
+  }
+  const report = await audit(config);
+  if (values.format === 'json') console.log(JSON.stringify(report, null, 2));
+  else {
+    for (const item of report.findings) {
+      console.log(
+        `${item.severity === 'error' ? 'ERROR' : 'AVISO'} ${item.path}${item.line ? `:${item.line}:${item.column}` : ''} [${item.ruleId}] ${item.message}`,
+      );
+    }
+    for (const notice of report.notices) console.log(`NOTA ${notice}`);
+    console.log(
+      `Resultado: ${report.summary.errors} errores, ${report.summary.warnings} advertencias. ${report.summary.evaluatedRules} reglas habilitadas; ${report.summary.analyzedFiles} archivos analizados por detectores TypeScript.`,
+    );
+  }
+  return report.summary.errors ? 1 : 0;
+}
+
+try {
+  process.exitCode = await main();
+} catch (error) {
+  console.error(
+    `No se pudo completar la operación: ${error instanceof Error ? error.message : String(error)}`,
+  );
+  process.exitCode = 2;
+}

@@ -2,23 +2,21 @@
 
 ## Ramas
 
-`main` integra cambios revisados y debe mantenerse compilable. Crear ramas cortas desde `main`: `feat/<tema>`, `fix/<tema>`, `docs/<tema>` o `chore/<tema>`. Integrar mediante pull request y eliminar la rama una vez integrada. No se necesita una rama permanente `develop` en esta etapa.
+`main` conserva la base integrada. Crear ramas cortas `feat/<tema>`, `fix/<tema>`, `docs/<tema>` o `chore/<tema>` y usar pull requests. No se necesita una rama permanente `develop`.
 
-Una vez creado el remoto, configurar protección de `main`: PR obligatorio, al menos una aprobación y CI aprobado. Estas protecciones son una política pendiente de configurar en el proveedor, no controles activos locales.
+La migración desde Rust se desarrolla en `feat/typescript-engine`; la base anterior permanece en el historial. No se reescribe la historia de `main`.
 
-## Cambios
+Al configurar el remoto: proteger `main`, exigir un PR revisado y CI aprobado. Estas protecciones todavía no están activas porque no hay remoto.
 
-Usar commits descriptivos: `feat:`, `fix:`, `docs:`, `refactor:`, `test:` y `chore:`. El título del PR debe describir el resultado. Esta convención es manual por ahora.
+## Desarrollo
 
-Actualizar `CHANGELOG.md` bajo `Unreleased` para cambios de comportamiento. Documentar opciones públicas y añadir pruebas de comportamiento para nuevas reglas, incluyendo casos válidos, incumplimientos y errores de lectura o configuración.
-
-## Validación
+Node.js 22 o superior y npm. Usar `npm ci` para respetar el lockfile.
 
 ```sh
-cargo fmt --all -- --check
-cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace --locked
-cargo build --workspace --locked
+npm run check
+npm pack --dry-run
 ```
 
-Las reglas no deben modificar archivos ni ejecutar código del proyecto auditado. Mantener deterministas los reportes; la CLI debe distinguir incumplimientos de errores operativos.
+`check` valida tipos, formato y pruebas de comportamiento. Para nuevas reglas, añadir casos válidos, incumplimientos, exclusiones y límites del detector. No añadir dependencias de Angular al núcleo. Los criterios subjetivos se documentan como revisión contextual.
+
+Usar commits descriptivos (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`). Actualizar `CHANGELOG.md` bajo `Unreleased` y explicar cambios de configuración o JSON. Los detectores auditan sin modificar ni ejecutar código del proyecto.

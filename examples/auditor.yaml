@@ -1,0 +1,8 @@
+schema-version: 1
+packs:
+  - builtin:docs
+  - builtin:typescript-tests
+exclude:
+  - '**/generated/**'
+rules:
+  typescript.no-any: warning

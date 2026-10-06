@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { loadConfig } from './config.js';
 import { audit } from './engine.js';
+import { renderHtml } from './html-report.js';
 
 const initialConfig = `# Activa solo los paquetes que correspondan a tu proyecto.
 schema-version: 1
@@ -24,6 +25,7 @@ async function main(): Promise<number> {
       version: { type: 'boolean', short: 'V' },
       config: { type: 'string', short: 'c' },
       format: { type: 'string' },
+      output: { type: 'string', short: 'o' },
     },
   });
   if (values.help || (positionals.length === 0 && !values.version)) {
@@ -33,11 +35,13 @@ Uso:
   standards-auditor init                  Crear auditor.yaml sin sobrescribirlo
   standards-auditor check                 Auditar el proyecto
   standards-auditor check --format json   Emitir un reporte JSON
+  standards-auditor check --format html   Guardar un reporte HTML visual
   standards-auditor explain <regla>       Explicar una regla habilitada
 
-Opciones: --config <ruta>, --help, --version
+Opciones: --config <ruta>, --output <reporte.html> (solo HTML), --help, --version
+HTML predeterminado: reports/standards-auditor.html, relativo al directorio actual.
 Códigos: 0 sin errores, 1 incumplimientos, 2 error de configuración o ejecución.
-No ejecuta pruebas ni modifica archivos durante la auditoría.`);
+No ejecuta pruebas. Solo escribe el reporte cuando se solicita HTML.`);
     return 0;
   }
   if (values.version) {
@@ -58,10 +62,20 @@ No ejecuta pruebas ni modifica archivos durante la auditoría.`);
     throw new Error('Comando inválido. Consulta --help.');
   if (
     values.format !== undefined &&
-    (command !== 'check' || !['text', 'json'].includes(values.format))
+    (command !== 'check' || !['text', 'json', 'html'].includes(values.format))
   ) {
-    throw new Error('Usa --format text o --format json con check.');
+    throw new Error('Usa --format text, json o html con check.');
   }
+  if (
+    values.output !== undefined &&
+    (command !== 'check' || values.format !== 'html')
+  )
+    throw new Error('--output solo está disponible con check --format html.');
+  const outputFile = path.resolve(
+    values.output ?? 'reports/standards-auditor.html',
+  );
+  if (values.format === 'html' && !/\.html?$/i.test(outputFile))
+    throw new Error('La ruta de salida debe terminar en .html o .htm.');
   const configFile = path.resolve(values.config ?? 'auditor.yaml');
   if (command === 'init') {
     await writeFile(configFile, initialConfig, { flag: 'wx' });
@@ -80,7 +94,21 @@ No ejecuta pruebas ni modifica archivos durante la auditoría.`);
     return 0;
   }
   const report = await audit(config);
-  if (values.format === 'json') console.log(JSON.stringify(report, null, 2));
+  if (values.format === 'html') {
+    await mkdir(path.dirname(outputFile), { recursive: true });
+    await writeFile(
+      outputFile,
+      renderHtml(report, {
+        project: path.basename(config.root),
+        generatedAt: new Date(),
+      }),
+      'utf8',
+    );
+    console.log(
+      `Reporte HTML: ${outputFile}\nResultado: ${report.summary.errors} errores, ${report.summary.warnings} advertencias.`,
+    );
+  } else if (values.format === 'json')
+    console.log(JSON.stringify(report, null, 2));
   else {
     for (const item of report.findings) {
       console.log(

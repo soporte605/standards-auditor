@@ -11,6 +11,9 @@ Cambios relevantes del proyecto, versionado conforme a SemVer.
 
 ### Added
 
+- Reporte HTML independiente con filtros, búsqueda, resumen visual y notas de alcance.
+- Opciones `check --format html` y `--output`, con generación incluso cuando hay incumplimientos.
+
 - Comandos `init`, `check`, `explain`, ayuda y versión.
 - Configuración YAML estricta, paquetes locales, severidades y exclusiones.
 - Detectores de archivos obligatorios, `any` explícito y supresiones de tipos.

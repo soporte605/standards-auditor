@@ -6,6 +6,7 @@ La CLI se compila a JavaScript ESM y se distribuye como paquete npm para Node.js
 
 - `src/cli.ts`: comandos, mensajes y códigos de salida.
 - `src/config.ts`: esquemas estrictos con Zod, lectura YAML y resolución de paquetes.
+- `src/html-report.ts`: presentación HTML independiente con contenido escapado y filtros locales.
 - `src/engine.ts`: ejecución de detectores y hallazgos normalizados.
 - `packs/*.yaml`: configuración declarativa de los detectores incorporados.
 - `test/cli.test.mjs`: pruebas de la interfaz pública en proyectos temporales.
@@ -30,6 +31,8 @@ El AST es sintáctico; estos detectores no validan compilación ni resuelven los
 
 ## Contratos y límites
 
-Consola y JSON (`schemaVersion: 1`); códigos `0` sin errores de reglas, `1` incumplimientos error, `2` fallos operativos. Alcances vacíos generan notas explícitas. Las advertencias no bloquean por defecto.
+Consola, HTML y JSON (`schemaVersion: 1`); códigos `0` sin errores de reglas, `1` incumplimientos error, `2` fallos operativos. Alcances vacíos generan notas explícitas. Las advertencias no bloquean por defecto.
 
 SemVer, changelog, cobertura, reglas de Vitest/Angular, instalación remota de paquetes y correcciones automáticas están pendientes. La arquitectura permanece modular sin crear paquetes npm internos antes de necesitarlos.
+
+El renderer HTML consume el mismo reporte que JSON, sin volver a analizar archivos. Escapa los textos del proyecto y no los inserta en scripts. Solo la CLI escribe el artefacto solicitado después de finalizar la auditoría; los detectores siguen siendo de lectura.

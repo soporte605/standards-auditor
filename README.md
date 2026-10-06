@@ -6,7 +6,7 @@ Paquete de consola en TypeScript para auditar estándares de ingeniería mediant
 
 Versión de desarrollo `0.1.0-dev.0`. Nombre provisional, sin publicación en npm. Funciona con Node.js 22 o superior; no necesita Rust ni compiladores nativos. Se distribuye JavaScript compilado, no requiere compilar TypeScript al instalar el paquete.
 
-Disponible: `init`, `check`, `explain`, paquetes locales, severidades, exclusiones y reportes JSON. Detectores actuales: archivos obligatorios, `any` explícito y directivas `@ts-ignore`/`@ts-nocheck` en TypeScript. Todavía no comprueba SemVer, estructura de changelog, cobertura ni arquitectura Angular.
+Disponible: `init`, `check`, `explain`, paquetes locales, severidades, exclusiones y reportes JSON y HTML. Detectores actuales: archivos obligatorios, `any` explícito y directivas `@ts-ignore`/`@ts-nocheck` en TypeScript. Todavía no comprueba SemVer, estructura de changelog, cobertura ni arquitectura Angular.
 
 ## Probar desde el repositorio
 
@@ -63,6 +63,19 @@ npx standards-auditor check --format json
 ```
 
 Códigos de salida: `0` sin errores de reglas (puede haber advertencias); `1` incumplimientos de severidad error; `2` fallo de uso, configuración o ejecución. Los errores operativos van a stderr. Un alcance sin archivos se indica en `notices`; no demuestra calidad ni cobertura. `check` no ejecuta el código del proyecto ni genera o modifica pruebas.
+
+## Reporte HTML
+
+```sh
+npx standards-auditor check --format html
+npx standards-auditor check --format html --output reports/auditoria.html
+```
+
+Al terminar, muestra la ruta del archivo para abrirlo en el navegador. La salida predeterminada es `reports/standards-auditor.html`, relativa al directorio desde el que ejecutas el comando, incluso si usas `--config`. Crea las carpetas necesarias y reemplaza el reporte anterior de esa ruta. `--output` solo admite HTML y extensiones `.html` o `.htm`.
+
+Incluye resumen, distribución de hallazgos, filtros por severidad, búsqueda por archivo/regla/mensaje, ubicaciones y notas de alcance. Es un único archivo que funciona sin internet ni recursos externos. Puedes compartirlo o imprimirlo desde el navegador; la impresión incluye todos los hallazgos aunque haya filtros activos. Sin JavaScript, el detalle sigue siendo visible.
+
+El reporte se genera también cuando hay incumplimientos y conserva los códigos `0`/`1`; errores de configuración o escritura devuelven `2`. No se abre el navegador automáticamente. Los formatos de consola y JSON conservan su comportamiento. El HTML muestra hallazgos, no porcentajes de cobertura ni una calificación de calidad. Ten en cuenta que contiene rutas relativas y mensajes de tu proyecto.
 
 ## Desarrollo
 

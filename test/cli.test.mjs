@@ -198,3 +198,68 @@ test('a directory cannot satisfy a required file', async (t) => {
   await mkdir(path.join(root, 'README.md'));
   assert.equal(run(root, 'check').status, 1);
 });
+
+test('HTML report is written even on findings, keeps exit codes and supports nested output', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': tsConfig,
+    'sample.spec.ts': '// @ts-ignore\nlet value: any;',
+  });
+  const result = run(
+    root,
+    'check',
+    '--format',
+    'html',
+    '--output',
+    'reports/nested/audit.html',
+  );
+  assert.equal(result.status, 1, result.stderr);
+  const html = await readFile(
+    path.join(root, 'reports/nested/audit.html'),
+    'utf8',
+  );
+  assert.match(html, /<!doctype html>/);
+  assert.match(html, /typescript.no-suppression/);
+  assert.match(html, /sample.spec.ts · Línea 1, columna 1/);
+  assert.match(html, /Requiere atención/);
+  assert.match(result.stdout, /Reporte HTML:/);
+  await writeFile(path.join(root, 'sample.spec.ts'), 'const value = 1;');
+  assert.equal(
+    run(root, 'check', '--format', 'html', '-o', 'reports/nested/audit.html')
+      .status,
+    0,
+  );
+  assert.match(
+    await readFile(path.join(root, 'reports/nested/audit.html'), 'utf8'),
+    /Sin incumplimientos detectados/,
+  );
+});
+
+test('default HTML destination uses cwd and empty scopes remain visible', async (t) => {
+  const root = await fixture(t, { 'project/auditor.yaml': tsConfig });
+  assert.equal(
+    run(root, 'check', '--config', 'project/auditor.yaml', '--format', 'html')
+      .status,
+    0,
+  );
+  const html = await readFile(
+    path.join(root, 'reports/standards-auditor.html'),
+    'utf8',
+  );
+  assert.match(html, /Revisar alcance/);
+  assert.match(html, /ningún archivo coincide/);
+});
+
+test('invalid output flags and write failures are operational errors', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': tsConfig,
+    blocked: 'not a directory',
+  });
+  for (const args of [
+    ['check', '--output', 'report.html'],
+    ['check', '--format', 'json', '--output', 'report.html'],
+    ['init', '--output', 'report.html'],
+    ['check', '--format', 'html', '--output', 'source.ts'],
+    ['check', '--format', 'html', '--output', 'blocked/report.html'],
+  ])
+    assert.equal(run(root, ...args).status, 2, args.join(' '));
+});

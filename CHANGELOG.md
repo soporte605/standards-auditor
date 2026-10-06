@@ -11,6 +11,11 @@ Cambios relevantes del proyecto, versionado conforme a SemVer.
 
 ### Added
 
+- Árbol configurable del proyecto con asociación de pruebas por rutas y nombres.
+- Importación de cobertura Istanbul json-summary y comparación visual con un objetivo de líneas opcional.
+- Filtros del árbol por pruebas faltantes, ausencia de datos y cobertura inferior al objetivo.
+- Estados separados para cobertura no configurada, reporte ausente y cobertura medida en cero.
+
 - Reporte HTML independiente con filtros, búsqueda, resumen visual y notas de alcance.
 - Opciones `check --format html` y `--output`, con generación incluso cuando hay incumplimientos.
 

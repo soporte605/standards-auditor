@@ -43,18 +43,63 @@ const packSchema = z.strictObject({
   name: z.string().min(1),
   rules: z.array(ruleSchema).min(1),
 });
+const testPattern = relativePath.refine((value) => {
+  const remaining = value.replace(/\{(?:dir|name|ext|path)\}/g, '');
+  return !/\{[a-zA-Z]+\}/.test(remaining) && /\{(?:name|path)\}/.test(value);
+}, 'Usa {name} o {path}; variables admitidas: {dir}, {name}, {ext}, {path}');
+const inventorySchema = z.strictObject({
+  enabled: z.boolean().default(true),
+  include: patterns.default([
+    'src/**',
+    'test/**',
+    'tests/**',
+    'README.md',
+    'package.json',
+    'auditor.yaml',
+  ]),
+  sources: patterns.default(['**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}']),
+  'source-exclude': z
+    .array(relativePath)
+    .default([
+      '**/*.{spec,test}.*',
+      '**/*.d.ts',
+      '**/__tests__/**',
+      'test/**',
+      'tests/**',
+    ]),
+  'test-patterns': z
+    .array(testPattern)
+    .min(1)
+    .default([
+      '{dir}/{name}.spec{ext}',
+      '{dir}/{name}.test{ext}',
+      '{dir}/__tests__/{name}.test{ext}',
+      'test/{name}.test.{ts,tsx,js,jsx,mjs,cjs}',
+      'tests/{name}.test{ext}',
+    ]),
+  coverage: z
+    .strictObject({
+      report: relativePath.optional(),
+      'minimum-lines': z.number().min(0).max(100).optional(),
+    })
+    .default({}),
+  'max-files': z.number().int().min(1).max(10000).default(1000),
+});
 const configSchema = z.strictObject({
   'schema-version': z.literal(1),
   packs: strings,
   exclude: z.array(relativePath).default([]),
   rules: z.record(z.string(), z.enum(['off', 'warning', 'error'])).default({}),
+  inventory: inventorySchema.prefault({}),
 });
 
 export type Rule = z.infer<typeof ruleSchema>;
+export type InventoryConfig = z.infer<typeof inventorySchema>;
 export interface ProjectConfig {
   root: string;
   rules: Rule[];
   exclude: string[];
+  inventory: InventoryConfig;
 }
 
 async function readYaml(file: string): Promise<unknown> {
@@ -102,12 +147,14 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
   return {
     root,
     rules: [...collected.values()],
+    inventory: config.inventory,
     exclude: [
       '**/node_modules/**',
       '**/.git/**',
       '**/dist/**',
       '**/coverage/**',
       '**/target/**',
+      '**/reports/**',
       ...config.exclude,
     ],
   };

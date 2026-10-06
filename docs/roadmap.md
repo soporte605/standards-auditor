@@ -5,7 +5,8 @@
 - Paquete npm local con CLI `init`, `check` y `explain`.
 - YAML validado, paquetes incorporados y locales, severidades y exclusiones.
 - Documentos obligatorios, `any` explícito y supresiones de tipos en TypeScript.
-- Reportes de consola/JSON y códigos de salida.
+- Reportes de consola/JSON/HTML y códigos de salida.
+- Árbol configurable con asociación de pruebas y cobertura Istanbul json-summary importada.
 - Pruebas de comportamiento, tipos estrictos y CI multiplataforma.
 - Documento original y clasificación de principios generales y convenciones específicas.
 
@@ -14,7 +15,7 @@
 - Detector SemVer sobre una fuente y clave configurables.
 - Comprobación estructural del changelog y correspondencia con versión declarada.
 - Secciones de documentación requeridas.
-- Importación de cobertura real con umbrales configurables.
+- Umbrales de cobertura configurables como reglas que puedan bloquear CI; hoy el objetivo de líneas es informativo.
 - Más casos de prueba y medición de cobertura del propio auditor.
 
 ## Adaptadores posteriores

@@ -14,6 +14,12 @@ packs:
   # - ./rules/team.yaml
 exclude: []
 rules: {}
+inventory:
+  enabled: true
+  # Ajusta include, sources y test-patterns a las convenciones de tu equipo.
+  # coverage:
+  #   report: coverage/coverage-summary.json
+  #   minimum-lines: 85
 `;
 
 async function main(): Promise<number> {
@@ -116,6 +122,16 @@ No ejecuta pruebas. Solo escribe el reporte cuando se solicita HTML.`);
       );
     }
     for (const notice of report.notices) console.log(`NOTA ${notice}`);
+    if (report.inventory) {
+      const inventory = report.inventory;
+      console.log(
+        `Inventario informativo: ${inventory.summary.withTests} fuentes con test asociado; ${inventory.summary.withoutTests} sin test asociado. Cobertura: ${inventory.coverage.status === 'not-configured' ? 'reporte no configurado' : inventory.coverage.status === 'missing' ? 'reporte no encontrado' : 'reporte disponible'}.`,
+      );
+      if (inventory.truncated)
+        console.log(
+          `NOTA Inventario limitado a ${inventory.files.length} de ${inventory.totalFiles} archivos.`,
+        );
+    }
     console.log(
       `Resultado: ${report.summary.errors} errores, ${report.summary.warnings} advertencias. ${report.summary.evaluatedRules} reglas habilitadas; ${report.summary.analyzedFiles} archivos analizados por detectores TypeScript.`,
     );

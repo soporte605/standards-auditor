@@ -3,6 +3,8 @@ import path from 'node:path';
 import { glob } from 'glob';
 import ts from 'typescript';
 import type { ProjectConfig, Rule } from './config.js';
+import { inspectInventory } from './inventory.js';
+import type { Inventory } from './inventory.js';
 
 export interface Finding {
   ruleId: string;
@@ -22,6 +24,7 @@ export interface Report {
     analyzedFiles: number;
   };
   notices: string[];
+  inventory?: Inventory;
 }
 
 function scanTypeScript(source: string, file: string, rule: Rule): Finding[] {
@@ -125,8 +128,10 @@ export async function audit(config: ProjectConfig): Promise<Report> {
         : (a.line ?? 0) - (b.line ?? 0) ||
           (a.ruleId < b.ruleId ? -1 : a.ruleId > b.ruleId ? 1 : 0),
   );
+  const inventory = await inspectInventory(config);
   return {
     schemaVersion: 1,
+    ...(inventory ? { inventory } : {}),
     findings,
     summary: {
       errors: findings.filter((item) => item.severity === 'error').length,

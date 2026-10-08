@@ -1,0 +1,21 @@
+schema-version: 1
+packs:
+  - builtin:docs
+  - builtin:typescript-tests
+exclude:
+  - '**/generated/**'
+rules:
+  typescript.no-any: warning
+inventory:
+  enabled: true
+  include: ['src/**', 'test/**', 'tests/**', 'README.md', 'package.json']
+  sources: ['src/**/*.{ts,tsx,js,jsx}']
+  test-patterns:
+    - '{dir}/{name}.spec{ext}'
+    - '{dir}/{name}.test{ext}'
+    - 'test/{name}.test.{ts,js,mjs}'
+    - 'tests/{path}.test{ext}'
+  # Activa esto después de generar cobertura con tu runner:
+  # coverage:
+  #   report: coverage/coverage-summary.json
+  #   minimum-lines: 85

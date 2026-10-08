@@ -1,0 +1,9 @@
+schema-version: 1
+name: docs
+rules:
+  - id: docs.required-files
+    detector: required-files
+    severity: error
+    description: Documenta cómo instalar y utilizar el proyecto.
+    files:
+      - README.md

@@ -1,0 +1,9 @@
+target/
+node_modules/
+dist/
+coverage/
+package-lock.json
+docs/reference/
+*.tgz
+
+reports/

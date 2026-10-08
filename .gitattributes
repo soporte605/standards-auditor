@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve the supplied reference document byte for byte.
+docs/reference/angular-vitest-original.txt -text

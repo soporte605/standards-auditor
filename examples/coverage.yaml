@@ -1,0 +1,13 @@
+schema-version: 1
+name: team-coverage
+rules:
+  - id: team.coverage
+    detector: coverage-thresholds
+    severity: error
+    description: Cumplir los mínimos globales de cobertura del equipo.
+    report: coverage/coverage-summary.json
+    minimum:
+      lines: 85
+      branches: 85
+      functions: 85
+      statements: 85

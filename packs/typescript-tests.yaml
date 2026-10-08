@@ -1,0 +1,17 @@
+schema-version: 1
+name: typescript-tests
+rules:
+  - id: typescript.no-any
+    detector: typescript-no-any
+    severity: warning
+    description: Evita any explícito; usa tipos concretos o unknown con validación.
+    include:
+      - '**/*.spec.{ts,tsx,mts,cts}'
+      - '**/*.test.{ts,tsx,mts,cts}'
+  - id: typescript.no-suppression
+    detector: typescript-no-suppression
+    severity: error
+    description: Corrige el problema de tipos en lugar de usar @ts-ignore o @ts-nocheck.
+    include:
+      - '**/*.spec.{ts,tsx,mts,cts}'
+      - '**/*.test.{ts,tsx,mts,cts}'

@@ -6,7 +6,7 @@
 
 La migración desde Rust se desarrolla en `feat/typescript-engine`; la base anterior permanece en el historial. No se reescribe la historia de `main`.
 
-Al configurar el remoto: proteger `main`, exigir un PR revisado y CI aprobado. Estas protecciones todavía no están activas porque no hay remoto.
+Al configurar el remoto: proteger `main`, exigir un PR revisado y CI aprobado. La protección de ramas depende de la configuración y el plan de GitHub; no se debe asumir que está activa.
 
 ## Desarrollo
 

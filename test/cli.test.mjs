@@ -187,7 +187,13 @@ test('bad commands and missing config are operational errors', async (t) => {
   ]) {
     assert.equal(run(root, ...args).status, 2, args.join(' '));
   }
-  assert.match(run(root, '--version').stdout, /0\.1\.0-dev\.0/);
+  const metadata = JSON.parse(
+    await readFile(new URL('../package.json', import.meta.url), 'utf8'),
+  );
+  assert.equal(
+    run(root, '--version').stdout.trim(),
+    `standards-auditor ${metadata.version}`,
+  );
   assert.equal(run(root, '--help').status, 0);
 });
 

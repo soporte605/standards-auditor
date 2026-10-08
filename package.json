@@ -1,7 +1,7 @@
 {
   "name": "standards-auditor",
-  "version": "0.1.0-dev.0",
-  "description": "Auditor configurable de est\u00e1ndares de ingenier\u00eda mediante paquetes YAML",
+  "version": "0.1.0-alpha.1",
+  "description": "Auditor configurable de estándares de ingeniería mediante paquetes YAML",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "glob": "^13.0.6",
+    "open": "^11.0.4",
     "typescript": "~5.9.3",
     "yaml": "^2.9.1",
     "zod": "^4.6.5"

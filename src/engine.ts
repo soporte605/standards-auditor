@@ -5,6 +5,12 @@ import ts from 'typescript';
 import type { ProjectConfig, Rule } from './config.js';
 import { inspectInventory } from './inventory.js';
 import type { Inventory } from './inventory.js';
+import { loadGuides } from './guides.js';
+import type { Guide } from './guides.js';
+import { readCoverage } from './coverage-data.js';
+import type { CoverageData } from './coverage-data.js';
+import { evaluateCoverage } from './coverage-rules.js';
+import type { CoverageEvaluation } from './coverage-rules.js';
 
 export interface Finding {
   ruleId: string;
@@ -22,9 +28,13 @@ export interface Report {
     warnings: number;
     evaluatedRules: number;
     analyzedFiles: number;
+    notEvaluated?: number;
+    requiredIncomplete?: number;
   };
   notices: string[];
   inventory?: Inventory;
+  guides?: Guide[];
+  coverageEvaluations?: CoverageEvaluation[];
 }
 
 function scanTypeScript(source: string, file: string, rule: Rule): Finding[] {
@@ -71,10 +81,37 @@ function scanTypeScript(source: string, file: string, rule: Rule): Finding[] {
 
 export async function audit(config: ProjectConfig): Promise<Report> {
   const findings: Finding[] = [];
-  const notices: string[] = [];
+  const guides = await loadGuides(config.root);
+  const notices: string[] = guides.map(
+    (guide) =>
+      `Guía ${guide.id}: ${guide.path}; ámbito ${guide.include.join(', ')}; ${guide.modified ? 'modificada desde la importación' : 'contenido original'}. Instrucciones para revisión, sin evaluación automática.`,
+  );
   const analyzed = new Set<string>();
+  const coverageEvaluations: CoverageEvaluation[] = [];
+  const coverageEvidence = new Map<string, CoverageData>();
   for (const rule of config.rules) {
-    if (rule.detector === 'required-files') {
+    if (rule.detector === 'coverage-thresholds') {
+      const key = path.resolve(config.root, rule.report);
+      const data =
+        coverageEvidence.get(key) ??
+        (await readCoverage(config.root, rule.report));
+      coverageEvidence.set(key, data);
+      const evaluations = evaluateCoverage(rule, data);
+      coverageEvaluations.push(...evaluations);
+      for (const evaluation of evaluations) {
+        if (evaluation.status === 'fail')
+          findings.push({
+            ruleId: rule.id,
+            severity: rule.severity,
+            message: evaluation.message,
+            path: rule.report,
+          });
+        if (evaluation.status === 'not-evaluated')
+          notices.push(
+            `${rule.id} (${evaluation.metric}): no se pudo evaluar. ${evaluation.message}`,
+          );
+      }
+    } else if (rule.detector === 'required-files') {
       for (const file of rule.files) {
         let exists = false;
         try {
@@ -128,9 +165,15 @@ export async function audit(config: ProjectConfig): Promise<Report> {
         : (a.line ?? 0) - (b.line ?? 0) ||
           (a.ruleId < b.ruleId ? -1 : a.ruleId > b.ruleId ? 1 : 0),
   );
-  const inventory = await inspectInventory(config);
+  if (coverageEvaluations.length)
+    notices.push(
+      'Cobertura: se evalúa el total del reporte importado, no el subconjunto del árbol. Su actualidad no está verificada; no se ejecutaron pruebas.',
+    );
+  const inventory = await inspectInventory(config, coverageEvidence);
   return {
     schemaVersion: 1,
+    ...(guides.length ? { guides } : {}),
+    ...(coverageEvaluations.length ? { coverageEvaluations } : {}),
     ...(inventory ? { inventory } : {}),
     findings,
     summary: {
@@ -138,6 +181,17 @@ export async function audit(config: ProjectConfig): Promise<Report> {
       warnings: findings.filter((item) => item.severity === 'warning').length,
       evaluatedRules: config.rules.length,
       analyzedFiles: analyzed.size,
+      ...(coverageEvaluations.length
+        ? {
+            notEvaluated: coverageEvaluations.filter(
+              (item) => item.status === 'not-evaluated',
+            ).length,
+            requiredIncomplete: coverageEvaluations.filter(
+              (item) =>
+                item.status === 'not-evaluated' && item.severity === 'error',
+            ).length,
+          }
+        : {}),
     },
     notices,
   };

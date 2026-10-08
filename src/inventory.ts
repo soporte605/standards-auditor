@@ -1,25 +1,10 @@
-import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { glob, escape } from 'glob';
-import { z } from 'zod';
 import type { ProjectConfig } from './config.js';
 
-const metricSchema = z.object({
-  pct: z.union([z.number().min(0).max(100), z.literal('Unknown')]),
-});
-const metricsSchema = z.object({
-  lines: metricSchema,
-  branches: metricSchema,
-  functions: metricSchema,
-  statements: metricSchema,
-});
-const coverageSchema = z.record(z.string(), metricsSchema);
-export interface CoverageMetrics {
-  lines: number | null;
-  branches: number | null;
-  functions: number | null;
-  statements: number | null;
-}
+export type { CoverageMetrics } from './coverage-data.js';
+import { readCoverage } from './coverage-data.js';
+import type { CoverageMetrics, CoverageData } from './coverage-data.js';
 export interface InventoryFile {
   path: string;
   role: 'source' | 'test' | 'other';
@@ -35,7 +20,7 @@ export interface Inventory {
   truncated: boolean;
   summary: { sources: number; withTests: number; withoutTests: number };
   coverage: {
-    status: 'not-configured' | 'missing' | 'available';
+    status: 'not-configured' | 'missing' | 'available' | 'invalid';
     report: string | null;
     modifiedAt: string | null;
     minimumLines: number | null;
@@ -43,21 +28,9 @@ export interface Inventory {
   };
 }
 
-function convertMetrics(
-  metrics: z.infer<typeof metricsSchema>,
-): CoverageMetrics {
-  const value = (pct: number | 'Unknown') =>
-    typeof pct === 'number' ? pct : null;
-  return {
-    lines: value(metrics.lines.pct),
-    branches: value(metrics.branches.pct),
-    functions: value(metrics.functions.pct),
-    statements: value(metrics.statements.pct),
-  };
-}
-
 export async function inspectInventory(
   config: ProjectConfig,
+  policyEvidence = new Map<string, CoverageData>(),
 ): Promise<Inventory | undefined> {
   const options = config.inventory;
   if (!options.enabled) return undefined;
@@ -88,56 +61,16 @@ export async function inspectInventory(
   const coverageByFile = new Map<string, CoverageMetrics>();
   if (options.coverage.report) {
     const reportPath = path.resolve(config.root, options.coverage.report);
-    let content: string | undefined;
-    try {
-      content = await readFile(reportPath, 'utf8');
-      coverage.modifiedAt = (await stat(reportPath)).mtime.toISOString();
-    } catch (error) {
-      if (!(
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ))
-        throw error;
-      coverage.status = 'missing';
-    }
-    if (content !== undefined) {
-      let parsed: z.infer<typeof coverageSchema>;
-      try {
-        parsed = coverageSchema.parse(JSON.parse(content));
-      } catch {
-        throw new Error(
-          `Reporte de cobertura inválido: ${options.coverage.report}. Se espera Istanbul json-summary con lines, branches, functions y statements.`,
-        );
-      }
-      if (!Object.keys(parsed).length)
-        throw new Error(
-          `Reporte de cobertura vacío: ${options.coverage.report}`,
-        );
-      coverage.status = 'available';
-      for (const [file, metrics] of Object.entries(parsed)) {
-        if (file === 'total') {
-          coverage.total = convertMetrics(metrics);
-          continue;
-        }
-        // Absolute paths from another platform/workspace cannot safely be guessed.
-        if (path.win32.isAbsolute(file) && !path.isAbsolute(file)) continue;
-        const resolved = path.isAbsolute(file)
-          ? file
-          : path.resolve(config.root, file.replaceAll('\\', '/'));
-        const relative = path
-          .relative(config.root, resolved)
-          .split(path.sep)
-          .join('/');
-        if (
-          relative === '..' ||
-          relative.startsWith('../') ||
-          path.isAbsolute(relative)
-        )
-          continue;
-        coverageByFile.set(relative, convertMetrics(metrics));
-      }
-    }
+    const data =
+      policyEvidence.get(reportPath) ??
+      (await readCoverage(config.root, options.coverage.report));
+    if (data.status === 'invalid' && !policyEvidence.has(reportPath))
+      throw new Error(data.message);
+    coverage.status = data.status;
+    coverage.modifiedAt = data.modifiedAt;
+    coverage.total = data.total;
+    for (const [file, metrics] of Object.entries(data.files))
+      coverageByFile.set(file, metrics);
   }
   const matchedTests = new Set<string>();
   const files: InventoryFile[] = [];

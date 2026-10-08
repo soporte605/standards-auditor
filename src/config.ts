@@ -21,7 +21,24 @@ const metadata = {
   severity: z.enum(['error', 'warning']),
   description: z.string().min(1),
 };
+const minimumSchema = z
+  .strictObject({
+    lines: z.number().min(0).max(100).optional(),
+    branches: z.number().min(0).max(100).optional(),
+    functions: z.number().min(0).max(100).optional(),
+    statements: z.number().min(0).max(100).optional(),
+  })
+  .refine(
+    (value) => Object.keys(value).length > 0,
+    'Define al menos un mínimo',
+  );
 const ruleSchema = z.discriminatedUnion('detector', [
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('coverage-thresholds'),
+    report: relativePath,
+    minimum: minimumSchema,
+  }),
   z.strictObject({
     ...metadata,
     detector: z.literal('required-files'),

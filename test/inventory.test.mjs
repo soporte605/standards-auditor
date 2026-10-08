@@ -211,11 +211,11 @@ test('configuration rejects misspelled variables, keys and coverage paths outsid
 test('HTML tree escapes file names and coverage report labels', async (t) => {
   const p = await project(
     t,
-    { 'src/a<img>.ts': '' },
+    { 'src/a&b.ts': '' },
     'inventory:\n  include: [src/**]\n',
   );
   const report = await p.report();
   const html = renderHtml(report, { project: 'Tree', generatedAt: new Date() });
-  assert.ok(!html.includes('a<img>.ts'));
-  assert.match(html, /a&lt;img&gt;.ts/);
+  assert.ok(!html.includes('a&b.ts'));
+  assert.match(html, /a&amp;b.ts/);
 });

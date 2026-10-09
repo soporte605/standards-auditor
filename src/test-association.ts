@@ -58,3 +58,25 @@ export async function associateSources(
   }
   return result;
 }
+
+/** Path a developer would create to give `file` its test, per the first plain pattern. */
+export function suggestTestPath(
+  file: string,
+  patterns: string[],
+): string | undefined {
+  const parsed = path.posix.parse(file);
+  const variables: Record<string, string> = {
+    dir: parsed.dir || '.',
+    name: parsed.name,
+    ext: parsed.ext,
+    path: file.slice(0, file.length - parsed.ext.length),
+  };
+  for (const pattern of patterns) {
+    const expanded = pattern.replace(
+      /\{(dir|name|ext|path)\}/g,
+      (_, key: string) => variables[key]!,
+    );
+    if (!/[{}*?[\]]/.test(expanded)) return path.posix.normalize(expanded);
+  }
+  return undefined;
+}

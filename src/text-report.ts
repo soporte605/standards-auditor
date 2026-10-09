@@ -70,7 +70,7 @@ export function renderText(
   if (details) {
     for (const finding of report.findings)
       lines.push(
-        `${finding.severity === 'error' ? 'ERROR' : 'AVISO'} ${finding.path}${finding.line ? `:${finding.line}:${finding.column ?? 1}` : ''} [${finding.ruleId}] ${finding.message}`,
+        `${finding.severity === 'error' ? 'ERROR' : 'AVISO'} ${finding.path}${finding.line ? `:${finding.line}:${finding.column ?? 1}` : ''} [${finding.ruleId}] ${finding.message}${finding.suggestion ? ` → crea ${finding.suggestion}` : ''}`,
       );
     for (const notice of report.notices) lines.push(`NOTA ${notice}`);
   } else if (hint)

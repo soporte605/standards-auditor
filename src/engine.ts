@@ -11,7 +11,7 @@ import { readCoverage } from './coverage-data.js';
 import type { CoverageData } from './coverage-data.js';
 import { evaluateCoverage } from './coverage-rules.js';
 import type { CoverageEvaluation } from './coverage-rules.js';
-import { associateSources } from './test-association.js';
+import { associateSources, suggestTestPath } from './test-association.js';
 
 export interface Finding {
   ruleId: string;
@@ -20,6 +20,7 @@ export interface Finding {
   path: string;
   line?: number;
   column?: number;
+  suggestion?: string;
 }
 export interface RuleResult {
   ruleId: string;
@@ -198,13 +199,19 @@ export async function audit(config: ProjectConfig): Promise<Report> {
       const covered = sources.size - missing.length;
       const percent = sources.size ? (covered / sources.size) * 100 : 100;
       if (percent < rule.minimum)
-        for (const [file] of missing)
+        for (const [file] of missing) {
+          const suggestion = suggestTestPath(
+            file,
+            config.inventory['test-patterns'],
+          );
           findings.push({
             ruleId: rule.id,
             severity: rule.severity,
             message: `${rule.description} Falta una prueba asociada; ${covered} de ${sources.size} fuentes (${Math.round(percent)}%) tienen una y el mínimo es ${rule.minimum}%.`,
             path: file,
+            ...(suggestion ? { suggestion } : {}),
           });
+        }
     } else if (rule.detector === 'required-files') {
       for (const file of rule.files) {
         let exists = false;

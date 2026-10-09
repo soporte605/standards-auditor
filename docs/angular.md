@@ -4,7 +4,6 @@
 
 - [Guía de pruebas de Angular](https://angular.dev/guide/testing) y la [guía de estilo](https://angular.dev/style-guide).
 - Documentación de [Vitest](https://vitest.dev/guide/coverage) y [Jasmine](https://jasmine.github.io/) para pruebas enfocadas, desactivadas y cobertura.
-- Modo estricto de [TypeScript](https://www.typescriptlang.org/tsconfig#strict).
 
 ```yaml
 # auditor.yaml
@@ -22,11 +21,11 @@ rules:
 | `angular.no-focused-tests`     | error     | No hay `fit`, `fdescribe`, `it.only`, `test.only` ni `describe.only`                           |
 | `angular.no-disabled-tests`    | warning   | No hay `xit`, `xdescribe`, `it.skip`, `test.skip` ni `describe.skip`                           |
 | `angular.no-testbed-get`       | warning   | No se usa `TestBed.get`; se prefiere `TestBed.inject`                                          |
-| `angular.no-explicit-any`      | warning   | No hay `any` explícito en `src/`                                                               |
-| `angular.no-ts-suppression`    | error     | No hay `@ts-ignore` ni `@ts-nocheck` en `src/`                                                 |
 | `angular.coverage-minimum`     | warning   | El reporte `json-summary` alcanza 80 % en las cuatro métricas                                  |
 
 Cada regla trae `guidance`, que aparece en el panel de salud y en `standards-auditor explain <regla>`.
+
+Las reglas de tipado (`any`, `@ts-ignore`) no forman parte del pack: ya las cubren ESLint y el modo estricto de TypeScript. Hay un ejemplo en [`examples/packs/typescript-estricto.yaml`](../examples/packs/typescript-estricto.yaml) por si tu equipo las quiere.
 
 ## Límites
 

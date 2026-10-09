@@ -185,3 +185,72 @@ test('Angular init skips the generic per-source rule in favor of facade/service 
   assert.ok(ids.includes('angular.no-component-specs'));
   assert.ok(!ids.includes('testing.source-has-test'));
 });
+
+const sharedPack = `schema-version: 1
+name: acme-angular
+rules:
+  - id: acme.changelog
+    detector: required-files
+    severity: error
+    description: Mantén un CHANGELOG.md.
+    guidance: Registra cada cambio relevante antes de abrir el PR.
+    files: [CHANGELOG.md]
+`;
+
+test('a pack shared through an installed npm package applies and can be tuned locally', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: ['package:@acme/standards/angular']
+`,
+    'node_modules/@acme/standards/package.json': '{"name":"@acme/standards"}',
+    'node_modules/@acme/standards/angular.yaml': sharedPack,
+  });
+  const failing = run(root, 'check', '--format', 'json');
+  assert.equal(failing.status, 1);
+  assert.equal(JSON.parse(failing.stdout).findings[0].ruleId, 'acme.changelog');
+  assert.match(run(root, 'explain', 'acme.changelog').stdout, /Registra cada/);
+  await writeFile(
+    path.join(root, 'auditor.yaml'),
+    `schema-version: 1
+packs: ['package:@acme/standards/angular']
+rules:
+  acme.changelog: warning
+`,
+  );
+  assert.equal(run(root, 'check').status, 0);
+});
+
+test('a package pack without a path uses auditor-pack.yaml and parent node_modules are found', async (t) => {
+  const root = await fixture(t, {
+    'node_modules/acme-standards/auditor-pack.yaml': sharedPack,
+    'app/auditor.yaml': `schema-version: 1
+packs: ['package:acme-standards']
+`,
+  });
+  const result = spawnSync(
+    process.execPath,
+    [cli, 'check', '--format', 'json'],
+    {
+      cwd: path.join(root, 'app'),
+      encoding: 'utf8',
+    },
+  );
+  assert.equal(JSON.parse(result.stdout).findings[0].ruleId, 'acme.changelog');
+});
+
+test('missing or malformed shared pack references are operational errors', async (t) => {
+  for (const reference of [
+    'package:@acme/not-installed/angular',
+    'package:@acme/standards/../../etc/passwd',
+    'package:Not A Package',
+  ]) {
+    const root = await fixture(t, {
+      'auditor.yaml': `schema-version: 1
+packs: ['${reference}']
+`,
+    });
+    const result = run(root, 'check');
+    assert.equal(result.status, 2, reference);
+    assert.match(result.stderr, /Pack compartido|Referencia|Ruta/);
+  }
+});

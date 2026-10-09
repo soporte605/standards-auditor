@@ -10,6 +10,7 @@ Cambios relevantes del proyecto, versionado conforme a SemVer.
 - Campo opcional `guidance` en las reglas y panel "Salud del proyecto" en consola y HTML con el estado de cada regla.
 - `init` detecta TypeScript, framework y runner en `package.json` y sugiere packs y exclusiones.
 - Pack `builtin:angular-vitest` con la parte verificable de la guía Angular/Vitest (sin pruebas de componentes, sin Jasmine/Jest, sin esperas con `setTimeout`, facades y servicios con prueba, cobertura mínima de 85 %) y los detectores `forbidden-files` y `typescript-forbidden-api`. `source-has-test` acepta `sources` y `source-exclude` propios.
+- Packs compartidos: `package:<paquete>[/<pack>]` carga reglas desde un paquete npm instalado (registro privado o Git), con versión fijada por lockfile. Guía en `docs/shared-packs.md`.
 - Ejemplos de Husky `pre-push` y GitHub Actions, con guía en `docs/git-hooks.md`.
 
 ### Changed

@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
@@ -162,6 +162,43 @@ async function readYaml(file: string): Promise<unknown> {
   return document.toJS({ maxAliasCount: 50 }) as unknown;
 }
 
+const sharedPack =
+  /^package:((?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*)(?:\/([A-Za-z0-9._/-]+))?$/;
+
+/** Finds `package:<name>[/<pack>]` in the nearest node_modules, like Node does. */
+async function resolveSharedPack(
+  root: string,
+  reference: string,
+): Promise<string> {
+  const match = sharedPack.exec(reference);
+  if (!match)
+    throw new Error(
+      `Referencia de pack compartido inválida: ${reference}. Usa package:<paquete>[/<pack>].`,
+    );
+  const [, name, sub] = match as unknown as [string, string, string?];
+  if (
+    sub?.split('/').some((part) => part === '' || part === '..' || part === '.')
+  )
+    throw new Error(`Ruta de pack compartido inválida: ${reference}`);
+  const file = sub
+    ? /\.ya?ml$/.test(sub)
+      ? sub
+      : `${sub}.yaml`
+    : 'auditor-pack.yaml';
+  for (let dir = root; ; dir = path.dirname(dir)) {
+    const candidate = path.join(dir, 'node_modules', name, file);
+    const exists = await stat(candidate).then(
+      (item) => item.isFile(),
+      () => false,
+    );
+    if (exists) return candidate;
+    if (path.dirname(dir) === dir) break;
+  }
+  throw new Error(
+    `Pack compartido no encontrado: ${reference}. Instálalo con npm install ${name} y revisa que incluya ${file}.`,
+  );
+}
+
 export async function loadConfig(configFile: string): Promise<ProjectConfig> {
   const root = path.dirname(path.resolve(configFile));
   const config = configSchema.parse(await readYaml(configFile));
@@ -180,6 +217,8 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
       packFile = fileURLToPath(
         new URL(`../packs/${name}.yaml`, import.meta.url),
       );
+    } else if (reference.startsWith('package:')) {
+      packFile = await resolveSharedPack(root, reference);
     } else {
       packFile = path.resolve(root, relativePath.parse(reference));
     }

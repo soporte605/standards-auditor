@@ -1,0 +1,22 @@
+name: Idea
+description: Propón una regla, un detector o una mejora
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema resolvería
+      placeholder: Mi equipo quiere comprobar que…
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Cómo te lo imaginas
+      description: Si es una regla, indica qué debe pasar y qué debe fallar.
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas que has probado

@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.1",
   "description": "Auditor configurable de estándares de ingeniería mediante paquetes YAML",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -11,6 +11,11 @@
   "bin": {
     "standards-auditor": "dist/cli.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soporte605/standards-auditor.git"
+  },
+  "bugs": "https://github.com/soporte605/standards-auditor/issues",
   "files": [
     "dist",
     "packs/*.yaml",
@@ -18,7 +23,9 @@
     "CHANGELOG.md",
     "README.md",
     "examples",
-    "CONTRIBUTING.md"
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "SECURITY.md"
   ],
   "scripts": {
     "build": "tsc",

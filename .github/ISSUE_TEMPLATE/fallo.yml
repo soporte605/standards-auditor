@@ -1,0 +1,57 @@
+name: Fallo
+description: Algo no funciona como debería
+labels: [bug]
+body:
+  - type: textarea
+    id: que_pasa
+    attributes:
+      label: Qué pasa
+      description: Describe el fallo y pega el mensaje de error si lo hay.
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      description: Incluye el auditor.yaml mínimo y la estructura del proyecto que lo provoca.
+      placeholder: |
+        1. npx standards-auditor init
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Qué esperabas
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión
+      description: Salida de `npx standards-auditor --version`.
+      placeholder: 0.1.0-alpha.1
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Versión de Node.js
+      placeholder: v22.12.0
+    validations:
+      required: true
+  - type: dropdown
+    id: sistema
+    attributes:
+      label: Sistema operativo
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Detalles adicionales
+      description: Quita rutas con tu usuario, nombres internos y cualquier dato privado de reportes o capturas.

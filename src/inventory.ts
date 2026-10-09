@@ -1,6 +1,9 @@
 import path from 'node:path';
-import { glob, escape } from 'glob';
 import type { ProjectConfig } from './config.js';
+import {
+  discover as discoverFiles,
+  expandTestPatterns,
+} from './test-association.js';
 
 export type { CoverageMetrics } from './coverage-data.js';
 import { readCoverage } from './coverage-data.js';
@@ -35,14 +38,7 @@ export async function inspectInventory(
   const options = config.inventory;
   if (!options.enabled) return undefined;
   const discover = (patterns: string[], ignore = config.exclude) =>
-    glob(patterns, {
-      cwd: config.root,
-      ignore,
-      nodir: true,
-      follow: false,
-      dot: true,
-      posix: true,
-    });
+    discoverFiles(config, patterns, ignore);
   const allFiles = (await discover(options.include)).sort();
   const displayedFiles = allFiles.slice(0, options['max-files']);
   const sourceSet = new Set(
@@ -77,18 +73,7 @@ export async function inspectInventory(
   for (const file of displayedFiles) {
     const tests: string[] = [];
     if (sourceSet.has(file)) {
-      const parsed = path.posix.parse(file);
-      const variables: Record<string, string> = {
-        dir: parsed.dir || '.',
-        name: parsed.name,
-        ext: parsed.ext,
-        path: file.slice(0, file.length - parsed.ext.length),
-      };
-      const patterns = options['test-patterns'].map((pattern) =>
-        pattern.replace(/\{(dir|name|ext|path)\}/g, (_, key: string) =>
-          escape(variables[key]!),
-        ),
-      );
+      const patterns = expandTestPatterns(file, options['test-patterns']);
       tests.push(
         ...(await discover(patterns)).filter((test) => test !== file).sort(),
       );

@@ -20,6 +20,7 @@ const metadata = {
   id: z.string().regex(/^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/),
   severity: z.enum(['error', 'warning']),
   description: z.string().min(1),
+  guidance: z.string().min(1).optional(),
 };
 const minimumSchema = z
   .strictObject({
@@ -43,6 +44,16 @@ const ruleSchema = z.discriminatedUnion('detector', [
     ...metadata,
     detector: z.literal('required-files'),
     files: z.array(relativePath).min(1),
+  }),
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('tests-exist'),
+    include: patterns,
+  }),
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('source-has-test'),
+    minimum: z.number().min(0).max(100).default(100),
   }),
   z.strictObject({
     ...metadata,
@@ -139,7 +150,7 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
     let packFile: string;
     if (reference.startsWith('builtin:')) {
       const name = reference.slice('builtin:'.length);
-      if (!['docs', 'typescript-tests'].includes(name)) {
+      if (!['docs', 'typescript-tests', 'testing'].includes(name)) {
         throw new Error(`Paquete incorporado desconocido: ${name}`);
       }
       packFile = fileURLToPath(

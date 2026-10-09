@@ -11,6 +11,7 @@ import { readCoverage } from './coverage-data.js';
 import type { CoverageData } from './coverage-data.js';
 import { evaluateCoverage } from './coverage-rules.js';
 import type { CoverageEvaluation } from './coverage-rules.js';
+import { associateSources } from './test-association.js';
 
 export interface Finding {
   ruleId: string;
@@ -20,9 +21,19 @@ export interface Finding {
   line?: number;
   column?: number;
 }
+export interface RuleResult {
+  ruleId: string;
+  severity: 'error' | 'warning';
+  detector: Rule['detector'];
+  description: string;
+  guidance?: string;
+  status: 'pass' | 'fail' | 'not-evaluated';
+  findings: number;
+}
 export interface Report {
   schemaVersion: 1;
   findings: Finding[];
+  ruleResults: RuleResult[];
   summary: {
     errors: number;
     warnings: number;
@@ -89,6 +100,7 @@ export async function audit(config: ProjectConfig): Promise<Report> {
   const analyzed = new Set<string>();
   const coverageEvaluations: CoverageEvaluation[] = [];
   const coverageEvidence = new Map<string, CoverageData>();
+  let associations: Promise<Map<string, string[]>> | undefined;
   for (const rule of config.rules) {
     if (rule.detector === 'coverage-thresholds') {
       const key = path.resolve(config.root, rule.report);
@@ -111,6 +123,39 @@ export async function audit(config: ProjectConfig): Promise<Report> {
             `${rule.id} (${evaluation.metric}): no se pudo evaluar. ${evaluation.message}`,
           );
       }
+    } else if (rule.detector === 'tests-exist') {
+      const tests = await glob(rule.include, {
+        cwd: config.root,
+        ignore: config.exclude,
+        nodir: true,
+        follow: false,
+        dot: true,
+        posix: true,
+      });
+      if (!tests.length)
+        findings.push({
+          ruleId: rule.id,
+          severity: rule.severity,
+          message: `${rule.description} No se encontró ningún archivo de prueba (${rule.include.join(', ')}).`,
+          path: '.',
+        });
+    } else if (rule.detector === 'source-has-test') {
+      const sources = await (associations ??= associateSources(config));
+      if (!sources.size)
+        notices.push(
+          `${rule.id}: no hay fuentes en el alcance del inventario.`,
+        );
+      const missing = [...sources].filter(([, tests]) => !tests.length);
+      const covered = sources.size - missing.length;
+      const percent = sources.size ? (covered / sources.size) * 100 : 100;
+      if (percent < rule.minimum)
+        for (const [file] of missing)
+          findings.push({
+            ruleId: rule.id,
+            severity: rule.severity,
+            message: `${rule.description} Falta una prueba asociada; ${covered} de ${sources.size} fuentes (${Math.round(percent)}%) tienen una y el mínimo es ${rule.minimum}%.`,
+            path: file,
+          });
     } else if (rule.detector === 'required-files') {
       for (const file of rule.files) {
         let exists = false;
@@ -170,8 +215,24 @@ export async function audit(config: ProjectConfig): Promise<Report> {
       'Cobertura: se evalúa el total del reporte importado, no el subconjunto del árbol. Su actualidad no está verificada; no se ejecutaron pruebas.',
     );
   const inventory = await inspectInventory(config, coverageEvidence);
+  const ruleResults: RuleResult[] = config.rules.map((rule) => {
+    const count = findings.filter((item) => item.ruleId === rule.id).length;
+    const incomplete = coverageEvaluations.some(
+      (item) => item.ruleId === rule.id && item.status === 'not-evaluated',
+    );
+    return {
+      ruleId: rule.id,
+      severity: rule.severity,
+      detector: rule.detector,
+      description: rule.description,
+      ...(rule.guidance ? { guidance: rule.guidance } : {}),
+      status: count ? 'fail' : incomplete ? 'not-evaluated' : 'pass',
+      findings: count,
+    };
+  });
   return {
     schemaVersion: 1,
+    ruleResults,
     ...(guides.length ? { guides } : {}),
     ...(coverageEvaluations.length ? { coverageEvaluations } : {}),
     ...(inventory ? { inventory } : {}),

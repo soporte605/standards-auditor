@@ -4,6 +4,13 @@ Cambios relevantes del proyecto, versionado conforme a SemVer.
 
 ## [Unreleased]
 
+### Added
+
+- Detectores `tests-exist` y `source-has-test` y el pack incorporado `builtin:testing` (falta de pruebas es un error).
+- Campo opcional `guidance` en las reglas y panel "Salud del proyecto" en consola y HTML con el estado de cada regla.
+- `init` detecta TypeScript, framework y runner en `package.json` y sugiere packs y exclusiones.
+- Ejemplos de Husky `pre-push` y GitHub Actions, con guía en `docs/git-hooks.md`.
+
 ### Changed
 
 - README orientado a la primera instalación, configuración y adopción en CI, con referencia detallada de uso separada.

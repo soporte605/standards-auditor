@@ -9,6 +9,7 @@ import { renderHtml } from '../dist/html-report.js';
 
 const report = {
   schemaVersion: 1,
+  ruleResults: [],
   findings: Array.from({ length: 40 }, (_, i) => ({
     ruleId: 'typescript.no-any',
     severity: 'warning',

@@ -18,7 +18,7 @@ Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: docume
 | Documentación         | Comprobar que existan los archivos requeridos                                                            |
 | Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                                                   |
 | Packs compartidos     | Reglas de la empresa en un paquete npm: `package:@acme/standards/angular` ([guía](docs/shared-packs.md)) |
-| Guía Angular/Vitest   | `builtin:angular-vitest`: frontera facade/servicio, Vitest y cobertura 85 %                              |
+| Angular               | `builtin:angular`: pruebas por artefacto, sin `fit`/`.only`, tipos estrictos y cobertura 80 %            |
 | Presencia de pruebas  | Exigir que existan pruebas y un porcentaje mínimo de fuentes con prueba (`builtin:testing`)              |
 | Salud del proyecto    | Panel con reglas cumplidas, severidad y cómo cumplir cada una                                            |
 | Git hooks y CI        | Ejemplos de Husky y GitHub Actions: [guía](docs/git-hooks.md)                                            |
@@ -244,7 +244,7 @@ npm pack
 - [Referencia de uso](docs/usage.md): opciones y comportamiento actual.
 - [Arquitectura](docs/architecture.md): módulos, evidencia y límites.
 - [Contrato de producto](docs/product-contract.md) y [roadmap](docs/roadmap.md): dirección y capacidades pendientes.
-- [Catálogo de reglas](docs/rule-catalog.md): principios generales y convenciones Angular/Vitest.
+- [Reglas de Angular](docs/angular.md): qué comprueba `builtin:angular` y en qué se basa.
 - [Contribución](CONTRIBUTING.md) y [publicación](docs/releasing.md): ramas, validación y versiones.
 
 Los documentos de diseño incluyen propuestas de esquema v2; **la CLI publicada utiliza esquema v1**. No copies una configuración propuesta como si ya estuviera implementada.

@@ -57,7 +57,7 @@ report:
   html-path: reports/auditor.html
 ```
 
-Los porcentajes son una decisión de este equipo. El perfil Angular futuro restringirá `testing.include` a facades/servicios y aportará su guía específica. Un perfil TypeScript general no heredará esas restricciones.
+Los porcentajes son una decisión de este equipo. Un perfil de framework podrá restringir `testing.include` a las capas que el equipo decida probar; un perfil TypeScript general no heredará esas restricciones.
 
 Los módulos `versioning` y `changelog` requerirán, al habilitarse, una fuente de versión y una estrategia documentada (`semver`, `changesets` o changelog estructurado), además de fase PR/publicación y base de comparación cuando aplique. Hasta definir y validar sus parámetros completos no se considerarán parte del esquema implementable.
 

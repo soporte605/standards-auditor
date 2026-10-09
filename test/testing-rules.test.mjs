@@ -130,3 +130,58 @@ test('init suggests packs and exclusions from package.json', async (t) => {
     ),
   );
 });
+
+test('Angular/Vitest pack enforces the facade/service testing boundary', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:angular-vitest]
+`,
+    'src/user.facade.ts': 'export class UserFacade {}\n',
+    'src/user.service.ts': 'export class UserService {}\n',
+    'src/user.facade.spec.ts': `import { describe, it, expect, vi } from 'vitest';
+describe('UserFacade', () => {
+  it('should work', () => { expect(vi.fn()).toBeDefined(); });
+});
+`,
+    'src/user.service.spec.ts': `const spy = jasmine.createSpy('x');
+import { TestBed } from '@angular/core/testing';
+const fixture = TestBed.createComponent(Foo);
+setTimeout(() => undefined, 500);
+const s = 'jasmine in a string is fine';
+`,
+    'src/user.component.ts': 'export class UserComponent {}\n',
+    'src/user.component.spec.ts': 'export {};\n',
+  });
+  const report = JSON.parse(run(root, 'check', '--format', 'json').stdout);
+  const by = (id) => report.findings.filter((item) => item.ruleId === id);
+  assert.deepEqual(
+    by('angular.no-component-specs').map((item) => item.path),
+    ['src/user.component.spec.ts'],
+  );
+  assert.deepEqual(
+    by('angular.no-jasmine-jest').map((item) => [item.path, item.line]),
+    [['src/user.service.spec.ts', 1]],
+  );
+  assert.equal(by('angular.no-component-testing-api').length, 1);
+  assert.equal(by('angular.no-artificial-sleeps').length, 1);
+  assert.equal(by('angular.facades-services-have-tests').length, 0);
+  const missing = report.ruleResults.find(
+    (item) => item.ruleId === 'angular.coverage-minimum',
+  );
+  assert.equal(missing.status, 'not-evaluated');
+});
+
+test('Angular init skips the generic per-source rule in favor of facade/service tests', async (t) => {
+  const root = await fixture(t, {
+    'package.json': JSON.stringify({ dependencies: { '@angular/core': '20' } }),
+    'tsconfig.json': '{}',
+  });
+  run(root, 'init');
+  const written = await readFile(path.join(root, 'auditor.yaml'), 'utf8');
+  assert.match(written, /builtin:angular-vitest/);
+  assert.match(written, /testing\.source-has-test: off/);
+  const check = run(root, 'check', '--format', 'json');
+  const ids = JSON.parse(check.stdout).ruleResults.map((item) => item.ruleId);
+  assert.ok(ids.includes('angular.no-component-specs'));
+  assert.ok(!ids.includes('testing.source-has-test'));
+});

@@ -54,7 +54,27 @@ const ruleSchema = z.discriminatedUnion('detector', [
     ...metadata,
     detector: z.literal('source-has-test'),
     minimum: z.number().min(0).max(100).default(100),
+    sources: patterns.optional(),
+    'source-exclude': z.array(relativePath).optional(),
   }),
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('forbidden-files'),
+    include: patterns,
+  }),
+  z
+    .strictObject({
+      ...metadata,
+      detector: z.literal('typescript-forbidden-api'),
+      include: patterns,
+      identifiers: strings.optional(),
+      members: strings.optional(),
+      modules: strings.optional(),
+    })
+    .refine(
+      (value) => value.identifiers || value.members || value.modules,
+      'Define al menos identifiers, members o modules',
+    ),
   z.strictObject({
     ...metadata,
     detector: z.literal('typescript-no-any'),
@@ -150,7 +170,11 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
     let packFile: string;
     if (reference.startsWith('builtin:')) {
       const name = reference.slice('builtin:'.length);
-      if (!['docs', 'typescript-tests', 'testing'].includes(name)) {
+      if (
+        !['docs', 'typescript-tests', 'testing', 'angular-vitest'].includes(
+          name,
+        )
+      ) {
         throw new Error(`Paquete incorporado desconocido: ${name}`);
       }
       packFile = fileURLToPath(

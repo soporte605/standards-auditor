@@ -77,6 +77,7 @@ export function suggestedConfig(detection: Detection): string {
       ? (frameworkExclude[detection.framework] ?? [])
       : []),
   ];
+  const angular = detection.framework === 'Angular';
   const detected = ['TypeScript', detection.framework, detection.runner].filter(
     Boolean,
   );
@@ -87,12 +88,11 @@ packs:
   - builtin:docs
   - builtin:typescript-tests
   - builtin:testing
-  # - ./rules/team.yaml
+${angular ? '  - builtin:angular-vitest\n' : ''}  # - ./rules/team.yaml
 exclude: []
 rules:
   # Cambia la severidad (error, warning) o desactiva una regla con off.
-  # testing.source-has-test: error
-  {}
+${angular ? '  # Con Angular solo se exige prueba a facades y servicios.\n  testing.source-has-test: off' : '  # testing.source-has-test: error\n  {}'}
 inventory:
   enabled: true
   # Archivos que no necesitan una prueba propia.

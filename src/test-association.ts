@@ -36,12 +36,16 @@ export function discover(
 /** Maps every source file in the inventory scope to its associated tests. */
 export async function associateSources(
   config: ProjectConfig,
+  scope: {
+    sources?: string[] | undefined;
+    'source-exclude'?: string[] | undefined;
+  } = {},
 ): Promise<Map<string, string[]>> {
   const options = config.inventory;
   const sources = (
-    await discover(config, options.sources, [
+    await discover(config, scope.sources ?? options.sources, [
       ...config.exclude,
-      ...options['source-exclude'],
+      ...(scope['source-exclude'] ?? options['source-exclude']),
     ])
   ).sort();
   const result = new Map<string, string[]>();

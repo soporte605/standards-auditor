@@ -17,6 +17,7 @@ Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: docume
 | Estándares por equipo | Packs YAML locales, severidades `error` / `warning` y desactivación con `off`               |
 | Documentación         | Comprobar que existan los archivos requeridos                                               |
 | Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                                      |
+| Guía Angular/Vitest   | `builtin:angular-vitest`: frontera facade/servicio, Vitest y cobertura 85 %                 |
 | Presencia de pruebas  | Exigir que existan pruebas y un porcentaje mínimo de fuentes con prueba (`builtin:testing`) |
 | Salud del proyecto    | Panel con reglas cumplidas, severidad y cómo cumplir cada una                               |
 | Git hooks y CI        | Ejemplos de Husky y GitHub Actions: [guía](docs/git-hooks.md)                               |

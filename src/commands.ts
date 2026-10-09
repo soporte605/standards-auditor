@@ -184,7 +184,7 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
     const rule = config.rules.find((item) => item.id === id);
     if (!rule) throw new Error(`Regla desconocida o deshabilitada: ${id}`);
     log(
-      `${rule.id} (${rule.severity})\n${rule.description}\nDetector: ${rule.detector}\nAlcance: ${('files' in rule ? rule.files : 'include' in rule ? rule.include : 'report' in rule ? [rule.report] : config.inventory.sources).join(', ')}`,
+      `${rule.id} (${rule.severity})\n${rule.description}\nDetector: ${rule.detector}\nAlcance: ${('files' in rule ? rule.files : 'include' in rule ? rule.include : 'report' in rule ? [rule.report] : (rule.sources ?? config.inventory.sources)).join(', ')}`,
     );
     if (rule.guidance) log(`Cómo cumplirla: ${rule.guidance}`);
     if (rule.detector === 'source-has-test')

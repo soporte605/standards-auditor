@@ -1,0 +1,25 @@
+# Copia a .github/workflows/standards-audit.yml
+name: Standards audit
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Falla el job con errores (salida 1) o evidencia obligatoria incompleta (2).
+      - run: npx standards-auditor check --format html --output reports/standards-auditor.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: standards-report
+          path: reports/standards-auditor.html

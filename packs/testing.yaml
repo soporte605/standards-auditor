@@ -1,0 +1,17 @@
+schema-version: 1
+name: testing
+rules:
+  - id: testing.has-unit-tests
+    detector: tests-exist
+    severity: error
+    description: El proyecto debe tener pruebas unitarias.
+    guidance: Crea al menos un archivo *.spec.ts o *.test.ts junto al código que prueba y ejecútalo con tu runner (Vitest, Jest o Karma).
+    include:
+      - '**/*.spec.{ts,tsx,mts,cts}'
+      - '**/*.test.{ts,tsx,mts,cts}'
+  - id: testing.source-has-test
+    detector: source-has-test
+    severity: warning
+    description: Cada archivo fuente debería tener una prueba asociada.
+    guidance: Crea un archivo con el mismo nombre y sufijo .spec.ts o .test.ts. Las fuentes y los patrones se ajustan en la sección inventory de auditor.yaml.
+    minimum: 50

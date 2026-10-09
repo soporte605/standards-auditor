@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
@@ -20,6 +20,7 @@ const metadata = {
   id: z.string().regex(/^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/),
   severity: z.enum(['error', 'warning']),
   description: z.string().min(1),
+  guidance: z.string().min(1).optional(),
 };
 const minimumSchema = z
   .strictObject({
@@ -44,6 +45,36 @@ const ruleSchema = z.discriminatedUnion('detector', [
     detector: z.literal('required-files'),
     files: z.array(relativePath).min(1),
   }),
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('tests-exist'),
+    include: patterns,
+  }),
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('source-has-test'),
+    minimum: z.number().min(0).max(100).default(100),
+    sources: patterns.optional(),
+    'source-exclude': z.array(relativePath).optional(),
+  }),
+  z.strictObject({
+    ...metadata,
+    detector: z.literal('forbidden-files'),
+    include: patterns,
+  }),
+  z
+    .strictObject({
+      ...metadata,
+      detector: z.literal('typescript-forbidden-api'),
+      include: patterns,
+      identifiers: strings.optional(),
+      members: strings.optional(),
+      modules: strings.optional(),
+    })
+    .refine(
+      (value) => value.identifiers || value.members || value.modules,
+      'Define al menos identifiers, members o modules',
+    ),
   z.strictObject({
     ...metadata,
     detector: z.literal('typescript-no-any'),
@@ -131,6 +162,43 @@ async function readYaml(file: string): Promise<unknown> {
   return document.toJS({ maxAliasCount: 50 }) as unknown;
 }
 
+const sharedPack =
+  /^package:((?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*)(?:\/([A-Za-z0-9._/-]+))?$/;
+
+/** Finds `package:<name>[/<pack>]` in the nearest node_modules, like Node does. */
+async function resolveSharedPack(
+  root: string,
+  reference: string,
+): Promise<string> {
+  const match = sharedPack.exec(reference);
+  if (!match)
+    throw new Error(
+      `Referencia de pack compartido inválida: ${reference}. Usa package:<paquete>[/<pack>].`,
+    );
+  const [, name, sub] = match as unknown as [string, string, string?];
+  if (
+    sub?.split('/').some((part) => part === '' || part === '..' || part === '.')
+  )
+    throw new Error(`Ruta de pack compartido inválida: ${reference}`);
+  const file = sub
+    ? /\.ya?ml$/.test(sub)
+      ? sub
+      : `${sub}.yaml`
+    : 'auditor-pack.yaml';
+  for (let dir = root; ; dir = path.dirname(dir)) {
+    const candidate = path.join(dir, 'node_modules', name, file);
+    const exists = await stat(candidate).then(
+      (item) => item.isFile(),
+      () => false,
+    );
+    if (exists) return candidate;
+    if (path.dirname(dir) === dir) break;
+  }
+  throw new Error(
+    `Pack compartido no encontrado: ${reference}. Instálalo con npm install ${name} y revisa que incluya ${file}.`,
+  );
+}
+
 export async function loadConfig(configFile: string): Promise<ProjectConfig> {
   const root = path.dirname(path.resolve(configFile));
   const config = configSchema.parse(await readYaml(configFile));
@@ -139,12 +207,18 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
     let packFile: string;
     if (reference.startsWith('builtin:')) {
       const name = reference.slice('builtin:'.length);
-      if (!['docs', 'typescript-tests'].includes(name)) {
+      if (
+        !['docs', 'typescript-tests', 'testing', 'angular-vitest'].includes(
+          name,
+        )
+      ) {
         throw new Error(`Paquete incorporado desconocido: ${name}`);
       }
       packFile = fileURLToPath(
         new URL(`../packs/${name}.yaml`, import.meta.url),
       );
+    } else if (reference.startsWith('package:')) {
+      packFile = await resolveSharedPack(root, reference);
     } else {
       packFile = path.resolve(root, relativePath.parse(reference));
     }

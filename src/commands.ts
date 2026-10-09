@@ -6,6 +6,7 @@ import { audit } from './engine.js';
 import { renderHtml } from './html-report.js';
 import { renderText } from './text-report.js';
 import { addGuide, loadGuides } from './guides.js';
+import { detectProject, suggestedConfig } from './detect.js';
 
 const initialConfig = `# Activa solo los paquetes que correspondan a tu proyecto.
 schema-version: 1
@@ -166,9 +167,15 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
     throw new Error('La ruta de salida debe terminar en .html o .htm.');
   const configFile = path.resolve(values.config ?? 'auditor.yaml');
   if (command === 'init') {
-    await writeFile(configFile, initialConfig, { flag: 'wx' });
+    const detection = await detectProject(path.dirname(configFile));
+    const suggested = detection?.typescript ? detection : null;
+    await writeFile(
+      configFile,
+      suggested ? suggestedConfig(suggested) : initialConfig,
+      { flag: 'wx' },
+    );
     log(
-      `Configuración creada: ${configFile}\nEdita sus paquetes y ejecuta standards-auditor check.`,
+      `Configuración creada: ${configFile}${suggested ? `\nDetectado: TypeScript${suggested.framework ? ` · ${suggested.framework}` : ''}${suggested.runner ? ` · ${suggested.runner}` : ''}. Se activaron los packs docs, typescript-tests y testing.` : ''}\nEdita sus paquetes y ejecuta standards-auditor check.`,
     );
     return 0;
   }
@@ -177,8 +184,13 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
     const rule = config.rules.find((item) => item.id === id);
     if (!rule) throw new Error(`Regla desconocida o deshabilitada: ${id}`);
     log(
-      `${rule.id} (${rule.severity})\n${rule.description}\nDetector: ${rule.detector}\nAlcance: ${('files' in rule ? rule.files : 'include' in rule ? rule.include : [rule.report]).join(', ')}`,
+      `${rule.id} (${rule.severity})\n${rule.description}\nDetector: ${rule.detector}\nAlcance: ${('files' in rule ? rule.files : 'include' in rule ? rule.include : 'report' in rule ? [rule.report] : (rule.sources ?? config.inventory.sources)).join(', ')}`,
     );
+    if (rule.guidance) log(`Cómo cumplirla: ${rule.guidance}`);
+    if (rule.detector === 'source-has-test')
+      log(
+        `Mínimo de fuentes con prueba asociada: ${rule.minimum}%. Fuentes y patrones de prueba se toman de inventory.`,
+      );
     if (rule.detector === 'coverage-thresholds')
       log(
         `Mínimos globales (%): ${JSON.stringify(rule.minimum)}\nSe evalúa el total importado; no se ejecutan pruebas ni se verifica su actualidad.`,

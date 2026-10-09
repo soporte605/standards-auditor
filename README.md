@@ -12,15 +12,20 @@ Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: docume
 
 ## Qué puedes hacer hoy
 
-| Capacidad             | Disponible                                                                      |
-| --------------------- | ------------------------------------------------------------------------------- |
-| Estándares por equipo | Packs YAML locales, severidades `error` / `warning` y desactivación con `off`   |
-| Documentación         | Comprobar que existan los archivos requeridos                                   |
-| Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                          |
-| Cobertura             | Importar Istanbul `json-summary` y exigir mínimos globales por métrica          |
-| Guías Markdown        | Importar una copia intacta, registrar ámbito y detectar cambios mediante hashes |
-| Resultados            | Resumen en consola, JSON para automatización y HTML independiente               |
-| Árbol del proyecto    | Mostrar pruebas asociadas por nombre y cobertura disponible por archivo         |
+| Capacidad             | Disponible                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| Estándares por equipo | Packs YAML locales, severidades `error` / `warning` y desactivación con `off`                            |
+| Documentación         | Comprobar que existan los archivos requeridos                                                            |
+| Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                                                   |
+| Packs compartidos     | Reglas de la empresa en un paquete npm: `package:@acme/standards/angular` ([guía](docs/shared-packs.md)) |
+| Guía Angular/Vitest   | `builtin:angular-vitest`: frontera facade/servicio, Vitest y cobertura 85 %                              |
+| Presencia de pruebas  | Exigir que existan pruebas y un porcentaje mínimo de fuentes con prueba (`builtin:testing`)              |
+| Salud del proyecto    | Panel con reglas cumplidas, severidad y cómo cumplir cada una                                            |
+| Git hooks y CI        | Ejemplos de Husky y GitHub Actions: [guía](docs/git-hooks.md)                                            |
+| Cobertura             | Importar Istanbul `json-summary` y exigir mínimos globales por métrica                                   |
+| Guías Markdown        | Importar una copia intacta, registrar ámbito y detectar cambios mediante hashes                          |
+| Resultados            | Resumen en consola, JSON para automatización y HTML independiente                                        |
+| Árbol del proyecto    | Mostrar pruebas asociadas por nombre y cobertura disponible por archivo                                  |
 
 El motor no requiere Angular. Las reglas de análisis de código actuales son específicas de TypeScript; cambiar patrones permite inventariar otros lenguajes, pero no añade automáticamente un analizador para ellos.
 

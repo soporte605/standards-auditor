@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Guía para contribuir
+    url: https://github.com/soporte605/standards-auditor/blob/main/CONTRIBUTING.md
+    about: Cómo proponer cambios y enviar Pull Requests.
+  - name: Vulnerabilidades de seguridad
+    url: https://github.com/soporte605/standards-auditor/security/advisories/new
+    about: Repórtalas en privado; no abras un issue público.

@@ -7,6 +7,7 @@ test('HTML escapes project names, paths, messages, rules and notices as text', (
   const html = renderHtml(
     {
       schemaVersion: 1,
+      ruleResults: [],
       findings: [
         { ruleId: payload, severity: 'error', message: payload, path: payload },
       ],
@@ -28,6 +29,7 @@ test('zero enabled rules are not presented as a successful audit', () => {
   const html = renderHtml(
     {
       schemaVersion: 1,
+      ruleResults: [],
       findings: [],
       summary: { errors: 0, warnings: 0, evaluatedRules: 0, analyzedFiles: 0 },
       notices: [],

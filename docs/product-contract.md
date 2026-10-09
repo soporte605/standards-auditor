@@ -6,7 +6,7 @@ Estado: diseño acordado para orientar las siguientes entregas. No describe toda
 
 Un paquete npm escrito en TypeScript que cada equipo instala en su proyecto para auditar estándares configurables. El motor coordina reglas, evidencia y reportes; los adaptadores conocen un lenguaje o herramienta. Angular será un perfil opcional, no una dependencia del motor.
 
-La instalación será local con `npm install --save-dev standards-auditor` y la ejecución mediante `npx standards-auditor check`, una vez publicado el paquete. Actualmente el paquete es privado y solo se distribuye localmente. Requiere Node.js compatible incluso al analizar otros lenguajes; la portabilidad se verificará en Windows, Linux y macOS.
+La instalación será local con `npm install --save-dev standards-auditor` y la ejecución mediante `npx standards-auditor check`, una vez publicado el paquete. Actualmente el paquete no está publicado en npm y se distribuye como archivo `.tgz` en las Releases de GitHub. Requiere Node.js compatible incluso al analizar otros lenguajes; la portabilidad se verificará en Windows, Linux y macOS.
 
 El producto tendrá tres capacidades relacionadas:
 
@@ -26,7 +26,7 @@ El núcleo funcionará localmente sin IA. La generación asistida será optativa
 
 Agregar un Markdown conservará el original y su procedencia. El sistema podrá proponer una clasificación; el equipo activará explícitamente reglas con detectores existentes. Las secciones sin detector permanecerán como instrucciones o criterios de revisión. Las instrucciones del documento no se ejecutarán como comandos.
 
-La [clasificación de la guía aportada](rule-catalog.md) mantiene las excepciones del original. El [contrato de configuración](configuration-contract.md) define cómo se seleccionan y sobrescriben estándares.
+El [contrato de configuración](configuration-contract.md) define cómo se seleccionan y sobrescriben estándares.
 
 ## Recorrido del desarrollador
 
@@ -82,7 +82,7 @@ El HTML mostrará métricas resumidas y desplegables para árbol, evidencia y re
 
 ## Generación y límites de modificación
 
-El plan leerá fuentes completas, contratos de dependencias y pruebas existentes, e identificará comportamiento público, casos y evidencia faltante. No inventará APIs. La guía Angular limitará las propuestas a facades y servicios salvo una excepción solicitada por el equipo.
+El plan leerá fuentes completas, contratos de dependencias y pruebas existentes, e identificará comportamiento público, casos y evidencia faltante. No inventará APIs. Las propuestas respetarán el ámbito que defina el equipo en su configuración o guía.
 
 La generación modificará exclusivamente pruebas y fixtures previstas en el plan, conservará pruebas válidas y entregará un diff revisable. No cambiará producción, umbrales, exclusiones, dependencias ni configuración para conseguir una ejecución verde. Un problema de diseño se explicará como propuesta independiente. No migrará suites a otro runner sin incluir esa migración en el alcance.
 

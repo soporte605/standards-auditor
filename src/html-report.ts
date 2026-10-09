@@ -1,6 +1,7 @@
 import type { Report } from './engine.js';
 
 import { escapeHtml } from './html-utils.js';
+import { renderHealth, healthCss } from './health-html.js';
 import { renderOverview } from './overview-html.js';
 import { reportStyles } from './report-styles.js';
 import {
@@ -49,6 +50,7 @@ export function renderHtml(
 <style>
 ${reportStyles}
 ${inventoryCss}
+${healthCss}
 </style>
 </head>
 <body><main>
@@ -60,6 +62,7 @@ ${inventoryCss}
       .replace(/\.\d{3}Z$/, ' UTC'),
   )}</time></header>
 <section class="hero" aria-label="Resultado general"><div><div class="eyebrow">Resumen del análisis</div><h2>${status}</h2><p>${evaluatedRules} reglas habilitadas · ${analyzedFiles} fuentes revisadas por detectores TypeScript</p></div><div class="hero-counts"><div class="error"><strong>${errors}</strong><span>${errors === 1 ? 'error' : 'errores'}</span></div><div class="warning"><strong>${warnings}</strong><span>${warnings === 1 ? 'advertencia' : 'advertencias'}</span></div></div></section>
+${renderHealth(report)}
 ${report.coverageEvaluations?.length ? `<section class="panel" aria-label="Mínimos de cobertura"><h2>Mínimos de cobertura</h2><p>Total global del reporte importado. Actualidad no verificada; no se ejecutaron pruebas.</p><ul>${report.coverageEvaluations.map((item) => `<li><strong>${escapeHtml(item.metric)}: ${item.status === 'pass' ? 'Cumple' : item.status === 'fail' ? 'Incumple' : 'No se pudo evaluar'}</strong> · ${item.actual === null ? 'sin dato' : `${item.actual}%`} / mínimo ${item.minimum}% · ${escapeHtml(item.severity)}<details><summary>${escapeHtml(item.ruleId)}</summary><p>${escapeHtml(item.message)}</p><p>${escapeHtml(item.evidence.report)}</p><p>SHA-256: ${escapeHtml(item.evidence.sha256 ?? 'no disponible')}</p></details></li>`).join('')}</ul></section>` : ''}
 ${report.inventory ? renderOverview(report.inventory) : ''}
 ${report.inventory ? renderInventory(report.inventory) : ''}

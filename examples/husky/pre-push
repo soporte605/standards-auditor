@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Copia a .husky/pre-push. Bloquea el push directo a ramas protegidas y
+# ejecuta la auditoría; un incumplimiento con severidad error cancela el push.
+branch="$(git rev-parse --abbrev-ref HEAD)"
+case "$branch" in
+  main|master|develop)
+    echo "Push directo a '$branch' bloqueado. Crea una rama y abre un Pull Request."
+    exit 1
+    ;;
+esac
+npx standards-auditor check --details

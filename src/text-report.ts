@@ -11,6 +11,17 @@ export function renderText(
     `Standards Auditor · ${project}`,
     `Resultado: ${errors} ${errors === 1 ? 'error' : 'errores'} · ${warnings} ${warnings === 1 ? 'advertencia' : 'advertencias'} · ${evaluatedRules} reglas habilitadas`,
   ];
+  if (report.ruleResults.length) {
+    const passed = report.ruleResults.filter((r) => r.status === 'pass').length;
+    lines.push(
+      `Salud: ${passed}/${report.ruleResults.length} reglas cumplidas`,
+    );
+    if (details)
+      for (const rule of report.ruleResults)
+        lines.push(
+          `  ${rule.status === 'pass' ? '✔' : rule.status === 'fail' ? '✖' : '◌'} [${rule.ruleId}] ${rule.description}${rule.status === 'fail' && rule.guidance ? ` Cómo cumplirla: ${rule.guidance}` : ''}`,
+        );
+  }
   if (report.inventory) {
     const { summary, coverage, truncated, files, totalFiles } =
       report.inventory;

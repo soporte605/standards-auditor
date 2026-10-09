@@ -4,23 +4,28 @@
 
 Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: documentación requerida, restricciones en pruebas TypeScript y mínimos de cobertura. Cada equipo elige sus convenciones y severidades. También permite conservar guías Markdown junto al proyecto.
 
-**Estado:** `0.1.0-alpha.1` · Requiere **Node.js 22 o superior y npm** · Probado en Linux, macOS y Windows con Node 22 y 24.
+**Estado:** `0.2.0-alpha.1` · Requiere **Node.js 22 o superior y npm** · Probado en Linux, macOS y Windows con Node 22 y 24.
 
-> Versión alpha para pruebas piloto. Se instala desde el paquete descargable de GitHub; todavía no está publicada en npm. El repositorio es privado y requiere acceso para descargarlo.
+> Versión alpha para pruebas piloto. Se instala desde el paquete descargable de GitHub; todavía no está publicada en npm. Licencia MIT; las contribuciones son bienvenidas ([guía](CONTRIBUTING.md)).
 
-[Descargar versión](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1) · [Referencia de configuración](docs/usage.md) · [Plan de desarrollo](docs/roadmap.md) · [Changelog](CHANGELOG.md)
+[Descargar versión](https://github.com/soporte605/standards-auditor/releases/tag/v0.2.0-alpha.1) · [Referencia de configuración](docs/usage.md) · [Plan de desarrollo](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
 ## Qué puedes hacer hoy
 
-| Capacidad             | Disponible                                                                      |
-| --------------------- | ------------------------------------------------------------------------------- |
-| Estándares por equipo | Packs YAML locales, severidades `error` / `warning` y desactivación con `off`   |
-| Documentación         | Comprobar que existan los archivos requeridos                                   |
-| Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                          |
-| Cobertura             | Importar Istanbul `json-summary` y exigir mínimos globales por métrica          |
-| Guías Markdown        | Importar una copia intacta, registrar ámbito y detectar cambios mediante hashes |
-| Resultados            | Resumen en consola, JSON para automatización y HTML independiente               |
-| Árbol del proyecto    | Mostrar pruebas asociadas por nombre y cobertura disponible por archivo         |
+| Capacidad             | Disponible                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| Estándares por equipo | Packs YAML locales, severidades `error` / `warning` y desactivación con `off`                            |
+| Documentación         | Comprobar que existan los archivos requeridos                                                            |
+| Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                                                   |
+| Packs compartidos     | Reglas de la empresa en un paquete npm: `package:@acme/standards/angular` ([guía](docs/shared-packs.md)) |
+| Angular               | `builtin:angular`: pruebas por artefacto, sin `fit`/`.only`, tipos estrictos y cobertura 80 %            |
+| Presencia de pruebas  | Exigir que existan pruebas y un porcentaje mínimo de fuentes con prueba (`builtin:testing`)              |
+| Salud del proyecto    | Panel con reglas cumplidas, severidad y cómo cumplir cada una                                            |
+| Git hooks y CI        | Ejemplos de Husky y GitHub Actions: [guía](docs/git-hooks.md)                                            |
+| Cobertura             | Importar Istanbul `json-summary` y exigir mínimos globales por métrica                                   |
+| Guías Markdown        | Importar una copia intacta, registrar ámbito y detectar cambios mediante hashes                          |
+| Resultados            | Resumen en consola, JSON para automatización y HTML independiente                                        |
+| Árbol del proyecto    | Mostrar pruebas asociadas por nombre y cobertura disponible por archivo                                  |
 
 El motor no requiere Angular. Las reglas de análisis de código actuales son específicas de TypeScript; cambiar patrones permite inventariar otros lenguajes, pero no añade automáticamente un analizador para ellos.
 
@@ -30,16 +35,16 @@ El motor no requiere Angular. Las reglas de análisis de código actuales son es
 
 ### 1. Descarga e instala
 
-Descarga `standards-auditor-0.1.0-alpha.1.tgz` desde la [prerelease](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1). No elijas los archivos automáticos “Source code”: el `.tgz` contiene el ejecutable ya compilado.
+Descarga `standards-auditor-0.2.0-alpha.1.tgz` desde la [prerelease](https://github.com/soporte605/standards-auditor/releases/tag/v0.2.0-alpha.1). No elijas los archivos automáticos “Source code”: el `.tgz` contiene el ejecutable ya compilado.
 
 En una terminal situada dentro del proyecto que quieres auditar, instala el archivo indicando su ubicación real:
 
 ```sh
-npm install --save-dev /ruta/al/standards-auditor-0.1.0-alpha.1.tgz
+npm install --save-dev /ruta/al/standards-auditor-0.2.0-alpha.1.tgz
 npx standards-auditor --version
 ```
 
-En Windows también puedes usar una ruta como `C:/Downloads/standards-auditor-0.1.0-alpha.1.tgz`. Pon la ruta entre comillas si contiene espacios. No necesitas Rust ni compilar TypeScript para instalarlo.
+En Windows también puedes usar una ruta como `C:/Downloads/standards-auditor-0.2.0-alpha.1.tgz`. Pon la ruta entre comillas si contiene espacios. No necesitas Rust ni compilar TypeScript para instalarlo.
 
 ### 2. Inicializa el proyecto
 
@@ -239,11 +244,11 @@ npm pack
 - [Referencia de uso](docs/usage.md): opciones y comportamiento actual.
 - [Arquitectura](docs/architecture.md): módulos, evidencia y límites.
 - [Contrato de producto](docs/product-contract.md) y [roadmap](docs/roadmap.md): dirección y capacidades pendientes.
-- [Catálogo de reglas](docs/rule-catalog.md): principios generales y convenciones Angular/Vitest.
+- [Reglas de Angular](docs/angular.md): qué comprueba `builtin:angular` y en qué se basa.
 - [Contribución](CONTRIBUTING.md) y [publicación](docs/releasing.md): ramas, validación y versiones.
 
 Los documentos de diseño incluyen propuestas de esquema v2; **la CLI publicada utiliza esquema v1**. No copies una configuración propuesta como si ya estuviera implementada.
 
 ## Licencia y distribución
 
-El paquete está marcado como `UNLICENSED` y `private: true`. El nombre público y la licencia de distribución siguen pendientes; no se publica en npm. La prerelease de GitHub permite instalar el paquete local para evaluar la herramienta.
+El código se distribuye bajo licencia [MIT](LICENSE). El paquete sigue marcado `private: true` para evitar una publicación accidental: el nombre público en npm sigue pendiente y no se publica allí. La prerelease de GitHub permite instalar el paquete local para evaluar la herramienta.

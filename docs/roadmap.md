@@ -8,7 +8,7 @@ CLI TypeScript con `init`, `check` y `explain`, esquema v1, packs locales/incorp
 
 ## Etapa 1 — Contrato y clasificación
 
-Entregables: [producto](product-contract.md), [configuración propuesta](configuration-contract.md) y [catálogo de la guía](rule-catalog.md).
+Entregables: [producto](product-contract.md) y [configuración propuesta](configuration-contract.md).
 
 Criterio: separar instrucciones, reglas verificables y revisión contextual; preservar excepciones del original; definir evidencia faltante, precedencia, límites de generación y estados de salida. Documentación completada; el esquema v2 sigue siendo una propuesta, sin implementación.
 
@@ -22,7 +22,7 @@ Criterios: fixtures que pasan/fallan, configuración inválida, conflictos entre
 
 ## Etapa 3 — Planificación y pruebas TypeScript/Vitest
 
-Primero `tests plan` de solo lectura y exportación de contexto para un asistente. Después generación opcional y `tests verify` con comandos explícitos, timeouts y reparación limitada. El perfil Angular/facades se mantendrá optativo.
+Primero `tests plan` de solo lectura y exportación de contexto para un asistente. Después generación opcional y `tests verify` con comandos explícitos, timeouts y reparación limitada. Los perfiles por framework (Angular, otros) se mantendrán optativos.
 
 Criterios: casos vinculados a APIs reales, pruebas existentes preservadas, límites de archivos respetados, tipos y runner ejecutados, cobertura vinculada a la ejecución y fallo correctamente reportado. Elegir proveedor solo antes de integrar generación remota; no condiciona el núcleo local.
 

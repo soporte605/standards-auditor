@@ -4,11 +4,11 @@
 
 Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: documentación requerida, restricciones en pruebas TypeScript y mínimos de cobertura. Cada equipo elige sus convenciones y severidades. También permite conservar guías Markdown junto al proyecto.
 
-**Estado:** `0.1.0-alpha.1` · Requiere **Node.js 22 o superior y npm** · Probado en Linux, macOS y Windows con Node 22 y 24.
+**Estado:** `0.2.0-alpha.1` · Requiere **Node.js 22 o superior y npm** · Probado en Linux, macOS y Windows con Node 22 y 24.
 
 > Versión alpha para pruebas piloto. Se instala desde el paquete descargable de GitHub; todavía no está publicada en npm. Licencia MIT; las contribuciones son bienvenidas ([guía](CONTRIBUTING.md)).
 
-[Descargar versión](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1) · [Referencia de configuración](docs/usage.md) · [Plan de desarrollo](docs/roadmap.md) · [Changelog](CHANGELOG.md)
+[Descargar versión](https://github.com/soporte605/standards-auditor/releases/tag/v0.2.0-alpha.1) · [Referencia de configuración](docs/usage.md) · [Plan de desarrollo](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
 ## Qué puedes hacer hoy
 
@@ -35,16 +35,16 @@ El motor no requiere Angular. Las reglas de análisis de código actuales son es
 
 ### 1. Descarga e instala
 
-Descarga `standards-auditor-0.1.0-alpha.1.tgz` desde la [prerelease](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1). No elijas los archivos automáticos “Source code”: el `.tgz` contiene el ejecutable ya compilado.
+Descarga `standards-auditor-0.2.0-alpha.1.tgz` desde la [prerelease](https://github.com/soporte605/standards-auditor/releases/tag/v0.2.0-alpha.1). No elijas los archivos automáticos “Source code”: el `.tgz` contiene el ejecutable ya compilado.
 
 En una terminal situada dentro del proyecto que quieres auditar, instala el archivo indicando su ubicación real:
 
 ```sh
-npm install --save-dev /ruta/al/standards-auditor-0.1.0-alpha.1.tgz
+npm install --save-dev /ruta/al/standards-auditor-0.2.0-alpha.1.tgz
 npx standards-auditor --version
 ```
 
-En Windows también puedes usar una ruta como `C:/Downloads/standards-auditor-0.1.0-alpha.1.tgz`. Pon la ruta entre comillas si contiene espacios. No necesitas Rust ni compilar TypeScript para instalarlo.
+En Windows también puedes usar una ruta como `C:/Downloads/standards-auditor-0.2.0-alpha.1.tgz`. Pon la ruta entre comillas si contiene espacios. No necesitas Rust ni compilar TypeScript para instalarlo.
 
 ### 2. Inicializa el proyecto
 

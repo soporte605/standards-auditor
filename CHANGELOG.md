@@ -7,6 +7,8 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [0.2.0-alpha.1] - 2026-10-09
+
 ### Añadido
 
 - Detectores `tests-exist` y `source-has-test` y el pack incorporado `builtin:testing` (falta de pruebas es un error).
@@ -58,5 +60,6 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 - Manifiestos Cargo y fuentes Rust de la rama de desarrollo; conservados en el historial Git.
 
-[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.1.0-alpha.1...HEAD
-[0.1.0-alpha.1]: https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1
+[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.1...HEAD
+[0.2.0-alpha.1]: https://github.com/soporte605/standards-auditor/compare/v0.1.0-alpha.1...v0.2.0-alpha.1
+[0.1.0-alpha.1]: https://github.com/soporte605/standards-auditor/tree/v0.1.0-alpha.1

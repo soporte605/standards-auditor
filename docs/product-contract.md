@@ -6,7 +6,7 @@ Estado: diseño acordado para orientar las siguientes entregas. No describe toda
 
 Un paquete npm escrito en TypeScript que cada equipo instala en su proyecto para auditar estándares configurables. El motor coordina reglas, evidencia y reportes; los adaptadores conocen un lenguaje o herramienta. Angular será un perfil opcional, no una dependencia del motor.
 
-La instalación será local con `npm install --save-dev standards-auditor` y la ejecución mediante `npx standards-auditor check`, una vez publicado el paquete. Actualmente el paquete es privado y solo se distribuye localmente. Requiere Node.js compatible incluso al analizar otros lenguajes; la portabilidad se verificará en Windows, Linux y macOS.
+La instalación será local con `npm install --save-dev standards-auditor` y la ejecución mediante `npx standards-auditor check`, una vez publicado el paquete. Actualmente el paquete no está publicado en npm y se distribuye como archivo `.tgz` en las Releases de GitHub. Requiere Node.js compatible incluso al analizar otros lenguajes; la portabilidad se verificará en Windows, Linux y macOS.
 
 El producto tendrá tres capacidades relacionadas:
 

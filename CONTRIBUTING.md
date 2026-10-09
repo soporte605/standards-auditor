@@ -1,4 +1,14 @@
-# Contribución
+# Cómo contribuir
+
+¡Gracias por querer mejorar Standards Auditor! Puedes reportar un fallo o proponer una idea con un [issue](https://github.com/soporte605/standards-auditor/issues/new/choose), mejorar la documentación o enviar código. Quita rutas con tu usuario y datos privados de reportes y capturas antes de compartirlos. Las vulnerabilidades se reportan en privado: ver [SECURITY.md](SECURITY.md).
+
+## Enviar cambios
+
+1. Haz un fork y crea una rama desde `develop` (no desde `main`).
+2. Ejecuta `npm ci` y `npm run check` antes de cada commit.
+3. Abre el Pull Request hacia `develop`. Si GitHub lo propone hacia `main`, cambia la rama de destino. La primera vez, el mantenedor tiene que aprobar la ejecución del CI.
+
+Al contribuir aceptas que tu aportación se publique bajo la [licencia MIT](LICENSE) del proyecto.
 
 ## Ramas
 

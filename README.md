@@ -6,7 +6,7 @@ Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: docume
 
 **Estado:** `0.1.0-alpha.1` · Requiere **Node.js 22 o superior y npm** · Probado en Linux, macOS y Windows con Node 22 y 24.
 
-> Versión alpha para pruebas piloto. Se instala desde el paquete descargable de GitHub; todavía no está publicada en npm. El repositorio es privado y requiere acceso para descargarlo.
+> Versión alpha para pruebas piloto. Se instala desde el paquete descargable de GitHub; todavía no está publicada en npm. Licencia MIT; las contribuciones son bienvenidas ([guía](CONTRIBUTING.md)).
 
 [Descargar versión](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1) · [Referencia de configuración](docs/usage.md) · [Plan de desarrollo](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
@@ -251,4 +251,4 @@ Los documentos de diseño incluyen propuestas de esquema v2; **la CLI publicada 
 
 ## Licencia y distribución
 
-El paquete está marcado como `UNLICENSED` y `private: true`. El nombre público y la licencia de distribución siguen pendientes; no se publica en npm. La prerelease de GitHub permite instalar el paquete local para evaluar la herramienta.
+El código se distribuye bajo licencia [MIT](LICENSE). El paquete sigue marcado `private: true` para evitar una publicación accidental: el nombre público en npm sigue pendiente y no se publica allí. La prerelease de GitHub permite instalar el paquete local para evaluar la herramienta.

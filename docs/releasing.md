@@ -36,4 +36,15 @@ Si una Release cambia los nombres de los archivos descargables, actualizar la se
 
 ## Publicación en npm
 
-Todavía no hay publicación en npm. Antes de habilitarla: elegir un nombre disponible, licencia y cuenta u organización npm, quitar `private: true` y añadir un paso `npm publish` con provenance al workflow, protegido por un entorno con aprobación manual.
+Todavía no hay publicación en npm. Antes de habilitarla: elegir un nombre disponible y cuenta u organización npm, la licencia MIT ya está definida; quitar `private: true` y añadir un paso `npm publish` con provenance al workflow, protegido por un entorno con aprobación manual.
+
+## Protección de ramas
+
+Las reglas viven en `.github/rulesets/` (copia de las de `monitor_sistema`): `main` y `develop` exigen Pull Request y los seis checks del CI (Ubuntu, macOS y Windows con Node 22 y 24), y no permiten borrar ni forzar el historial. `main` solo admite merge commit. Los administradores pueden saltarlas únicamente mediante un PR. Aplicarlas una sola vez, cuando el repositorio sea público (los rulesets de repositorios privados requieren un plan de pago):
+
+```sh
+gh api repos/soporte605/standards-auditor/rulesets --method POST --input .github/rulesets/main.json
+gh api repos/soporte605/standards-auditor/rulesets --method POST --input .github/rulesets/develop.json
+```
+
+Ajustes recomendados: _Settings → General_: borrar ramas al fusionar, `develop` como rama de trabajo predeterminada para los PR y _Require approval for first-time contributors_ en _Actions → General_.

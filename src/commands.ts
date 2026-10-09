@@ -175,7 +175,7 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
       { flag: 'wx' },
     );
     log(
-      `Configuración creada: ${configFile}${suggested ? `\nDetectado: TypeScript${suggested.framework ? ` · ${suggested.framework}` : ''}${suggested.runner ? ` · ${suggested.runner}` : ''}. Se activaron los packs docs, typescript-tests y testing.` : ''}\nEdita sus paquetes y ejecuta standards-auditor check.`,
+      `Configuración creada: ${configFile}${suggested ? `\nDetectado: TypeScript${suggested.framework ? ` · ${suggested.framework}` : ''}${suggested.runner ? ` · ${suggested.runner}` : ''}. Se activaron los packs docs, typescript-tests, testing${suggested.framework === 'Angular' ? ' y angular' : ''}.` : ''}\nEdita sus paquetes y ejecuta standards-auditor check.`,
     );
     return 0;
   }

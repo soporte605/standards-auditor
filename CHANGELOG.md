@@ -7,6 +7,10 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Corregido
+
+- `init` menciona el pack `angular` entre los packs activados cuando detecta Angular.
+
 ## [0.2.0-alpha.1] - 2026-10-09
 
 ### Añadido

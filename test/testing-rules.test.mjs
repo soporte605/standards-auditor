@@ -118,6 +118,7 @@ test('init suggests packs and exclusions from package.json', async (t) => {
   const init = run(root, 'init');
   assert.equal(init.status, 0);
   assert.match(init.stdout, /Angular · Vitest/);
+  assert.match(init.stdout, /testing y angular\./);
   const written = await readFile(path.join(root, 'auditor.yaml'), 'utf8');
   assert.match(written, /builtin:testing/);
   assert.match(written, /\*\.module\.ts/);

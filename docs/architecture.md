@@ -14,9 +14,13 @@ La CLI se compila a JavaScript ESM y se distribuye como paquete npm para Node.js
 - `src/inventory-html.ts`: árbol expandible y estados visuales del inventario.
 - `src/html-report.ts`: composición HTML independiente con contenido escapado y filtros locales.
 - `src/overview-html.ts` y `src/report-styles.ts`: gráficas de métricas importadas y presentación del resumen.
+- `src/test-association.ts`: asociación de fuentes con sus pruebas, compartida por el inventario y la regla `source-has-test`.
+- `src/detect.ts`: detección de TypeScript, framework y runner en `package.json` para sugerir la configuración de `init`.
+- `src/health-html.ts`: panel «Salud del proyecto» con el estado de cada regla.
 - `src/engine.ts`: ejecución de detectores y hallazgos normalizados.
 - `packs/*.yaml`: configuración declarativa de los detectores incorporados.
-- `test/cli.test.mjs`: pruebas de la interfaz pública en proyectos temporales.
+- `scripts/release-notes.mjs`: extrae del CHANGELOG las notas de una versión para la Release.
+- `test/*.test.mjs`: pruebas de la interfaz pública en proyectos temporales.
 
 ## Flujo
 
@@ -40,7 +44,7 @@ El AST es sintáctico; estos detectores no validan compilación ni resuelven los
 
 Consola, HTML y JSON (`schemaVersion: 1`); códigos `0` sin errores de reglas, `1` incumplimientos error, `2` fallos operativos. Alcances vacíos generan notas explícitas. Las advertencias no bloquean por defecto.
 
-SemVer, changelog, mínimos de cobertura por archivo, reglas de Vitest/Angular, instalación remota de paquetes y correcciones automáticas están pendientes. La arquitectura permanece modular sin crear paquetes npm internos antes de necesitarlos.
+SemVer, changelog, mínimos de cobertura por archivo, reglas de Vitest/Angular, descarga remota de paquetes (los packs compartidos se leen de `node_modules`) y correcciones automáticas están pendientes. La arquitectura permanece modular sin crear paquetes npm internos antes de necesitarlos.
 
 El renderer HTML consume el mismo reporte que JSON, sin volver a analizar archivos. Escapa los textos del proyecto y no los inserta en scripts. Solo la CLI escribe el artefacto solicitado después de finalizar la auditoría; los detectores siguen siendo de lectura.
 

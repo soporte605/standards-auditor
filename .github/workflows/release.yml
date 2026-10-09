@@ -1,0 +1,37 @@
+# Al subir un tag vX.Y.Z: valida el proyecto, empaqueta el .tgz y publica la
+# Release de GitHub con las notas de esa versión del CHANGELOG.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    name: Publicar la Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Notas de la versión desde el CHANGELOG
+        run: node scripts/release-notes.mjs "${GITHUB_REF_NAME#v}" > notas.md
+      - name: Empaquetar
+        run: |
+          npm pack
+          sha256sum *.tgz > SHA256SUMS
+      - name: Crear la Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRE=""
+          case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" *.tgz SHA256SUMS $PRE \
+            --title "Standards Auditor ${GITHUB_REF_NAME#v}" --notes-file notas.md

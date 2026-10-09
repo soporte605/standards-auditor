@@ -4,6 +4,7 @@ import { escapeHtml } from './html-utils.js';
 import { renderHealth, healthCss } from './health-html.js';
 import { renderOverview } from './overview-html.js';
 import { reportStyles } from './report-styles.js';
+import { devTheme } from './dev-theme.js';
 import {
   renderInventory,
   inventoryCss,
@@ -28,6 +29,17 @@ export function renderHtml(
           : report.notices.length
             ? 'Revisar alcance'
             : 'Sin incumplimientos detectados';
+  const tone = report.summary.requiredIncomplete
+    ? 'warning'
+    : errors
+      ? 'error'
+      : warnings || report.notices.length || !evaluatedRules
+        ? 'warning'
+        : 'ok';
+  const icon = { error: '✖', warning: '⚠', ok: '✔' }[tone];
+  const passedRules = report.ruleResults.filter(
+    (item) => item.status === 'pass',
+  ).length;
   const cards = report.findings
     .map(
       (
@@ -51,17 +63,18 @@ export function renderHtml(
 ${reportStyles}
 ${inventoryCss}
 ${healthCss}
+${devTheme}
 </style>
 </head>
 <body><main>
 <nav class="brand" aria-label="Identidad del reporte"><span class="logo" aria-hidden="true">sa/</span>standards auditor<small>Reporte de estándares</small></nav>
-<header><div><div class="eyebrow">Auditoría del proyecto</div><h1>${escapeHtml(context.project)}</h1><p>El estado de tu proyecto, de un vistazo.</p></div><time datetime="${context.generatedAt.toISOString()}">${escapeHtml(
+<header><div><div class="eyebrow">standards-auditor check</div><h1>${escapeHtml(context.project)}</h1><p>Estado del proyecto frente a los estándares de tu equipo.</p></div><time datetime="${context.generatedAt.toISOString()}">${escapeHtml(
     context.generatedAt
       .toISOString()
       .replace('T', ' · ')
       .replace(/\.\d{3}Z$/, ' UTC'),
   )}</time></header>
-<section class="hero" aria-label="Resultado general"><div><div class="eyebrow">Resumen del análisis</div><h2>${status}</h2><p>${evaluatedRules} reglas habilitadas · ${analyzedFiles} fuentes revisadas por detectores TypeScript</p></div><div class="hero-counts"><div class="error"><strong>${errors}</strong><span>${errors === 1 ? 'error' : 'errores'}</span></div><div class="warning"><strong>${warnings}</strong><span>${warnings === 1 ? 'advertencia' : 'advertencias'}</span></div></div></section>
+<section class="status" data-tone="${tone}" aria-label="Resultado general"><div class="status-main"><span class="status-icon" aria-hidden="true">${icon}</span><div><h2>${status}</h2><p>${evaluatedRules} reglas habilitadas · ${analyzedFiles} archivos revisados por detectores TypeScript</p></div></div><div class="status-counts"><span class="chip error"><b>${errors}</b>${errors === 1 ? 'error' : 'errores'}</span><span class="chip warning"><b>${warnings}</b>${warnings === 1 ? 'aviso' : 'avisos'}</span><span class="chip ok"><b>${passedRules}/${report.ruleResults.length}</b>reglas ok</span></div></section>
 ${renderHealth(report)}
 ${report.coverageEvaluations?.length ? `<section class="panel" aria-label="Mínimos de cobertura"><h2>Mínimos de cobertura</h2><p>Total global del reporte importado. Actualidad no verificada; no se ejecutaron pruebas.</p><ul>${report.coverageEvaluations.map((item) => `<li><strong>${escapeHtml(item.metric)}: ${item.status === 'pass' ? 'Cumple' : item.status === 'fail' ? 'Incumple' : 'No se pudo evaluar'}</strong> · ${item.actual === null ? 'sin dato' : `${item.actual}%`} / mínimo ${item.minimum}% · ${escapeHtml(item.severity)}<details><summary>${escapeHtml(item.ruleId)}</summary><p>${escapeHtml(item.message)}</p><p>${escapeHtml(item.evidence.report)}</p><p>SHA-256: ${escapeHtml(item.evidence.sha256 ?? 'no disponible')}</p></details></li>`).join('')}</ul></section>` : ''}
 ${report.inventory ? renderOverview(report.inventory) : ''}
@@ -98,6 +111,20 @@ for (const button of buttons) button.addEventListener('click', () => {
 search.addEventListener('input', update);
 document.getElementById('toolbar').hidden = false;
 ${inventoryScript}
+for (const button of document.querySelectorAll('[data-copy]')) {
+  button.hidden = false;
+  button.addEventListener('click', () => {
+    const text = button.dataset.copy;
+    const done = () => { button.textContent = 'copiado'; setTimeout(() => { button.textContent = 'copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done);
+    else {
+      const area = document.createElement('textarea');
+      area.value = text; document.body.appendChild(area); area.select();
+      try { document.execCommand('copy'); } catch (error) {}
+      area.remove(); done();
+    }
+  });
+}
 for (const button of document.querySelectorAll('[data-jump]')) {
   button.hidden = false;
   button.addEventListener('click', () => {

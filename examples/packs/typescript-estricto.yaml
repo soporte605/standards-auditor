@@ -1,0 +1,17 @@
+schema-version: 1
+name: typescript-estricto
+rules:
+  - id: team.no-explicit-any
+    detector: typescript-no-any
+    severity: warning
+    description: Evita any explícito; el modo estricto de TypeScript pierde su valor si el tipo se desactiva.
+    guidance: Usa un tipo concreto, un genérico o unknown con una comprobación de tipo.
+    include:
+      - 'src/**/*.ts'
+  - id: team.no-ts-suppression
+    detector: typescript-no-suppression
+    severity: error
+    description: Corrige el problema de tipos en lugar de usar @ts-ignore o @ts-nocheck.
+    guidance: Si de verdad no hay alternativa, usa @ts-expect-error con un comentario que explique el motivo.
+    include:
+      - 'src/**/*.ts'

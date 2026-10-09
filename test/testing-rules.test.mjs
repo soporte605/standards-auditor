@@ -118,7 +118,7 @@ test('init suggests packs and exclusions from package.json', async (t) => {
   const init = run(root, 'init');
   assert.equal(init.status, 0);
   assert.match(init.stdout, /Angular · Vitest/);
-  assert.match(init.stdout, /testing y angular\./);
+  assert.match(init.stdout, /typescript-tests, testing y angular\./);
   const written = await readFile(path.join(root, 'auditor.yaml'), 'utf8');
   assert.match(written, /builtin:testing/);
   assert.match(written, /\*\.module\.ts/);
@@ -158,8 +158,10 @@ const note = 'fit and xit inside a string are fine';
     by('angular.artifacts-have-tests').map((item) => item.path),
     ['src/user.component.ts'],
   );
-  assert.equal(by('angular.no-explicit-any').length, 1);
-  assert.equal(by('angular.no-ts-suppression').length, 1);
+  assert.equal(
+    by('angular.artifacts-have-tests')[0].suggestion,
+    'src/user.component.spec.ts',
+  );
   const missing = report.ruleResults.find(
     (item) => item.ruleId === 'angular.coverage-minimum',
   );
@@ -248,4 +250,28 @@ packs: ['${reference}']
     assert.equal(result.status, 2, reference);
     assert.match(result.stderr, /Pack compartido|Referencia|Ruta/);
   }
+});
+
+test('a missing test names the file to create, in console, JSON and HTML', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:angular]
+`,
+    'src/app/user.service.ts': 'export class UserService {}\n',
+    'src/app/user.service.spec.ts.bak': 'x\n',
+  });
+  const json = JSON.parse(run(root, 'check', '--format', 'json').stdout);
+  const finding = json.findings.find(
+    (item) => item.ruleId === 'angular.artifacts-have-tests',
+  );
+  assert.equal(finding.suggestion, 'src/app/user.service.spec.ts');
+  assert.match(
+    run(root, 'check', '--details').stdout,
+    /→ crea src\/app\/user\.service\.spec\.ts/,
+  );
+  const output = path.join(root, 'out.html');
+  run(root, 'check', '--format', 'html', '--output', output);
+  const html = await readFile(output, 'utf8');
+  assert.match(html, /data-copy="src\/app\/user\.service\.spec\.ts"/);
+  assert.match(html, /class="status" data-tone="/);
 });

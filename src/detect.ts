@@ -85,7 +85,6 @@ export function suggestedConfig(detection: Detection): string {
 # Ajusta packs, severidades y exclusiones a los estándares de tu equipo.
 schema-version: 1
 packs:
-  - builtin:docs
   - builtin:typescript-tests
   - builtin:testing
 ${angular ? '  - builtin:angular\n' : ''}  # - ./rules/team.yaml

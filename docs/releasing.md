@@ -2,7 +2,7 @@
 
 ## Versión del paquete
 
-`package.json` y `package-lock.json` contienen la versión del motor y la CLI. La base actual es `0.1.0-alpha.1`, sin publicar. Usar SemVer: antes de `1.0.0`, cambios incompatibles incrementan minor y correcciones compatibles incrementan patch como política interna. Desde `1.0.0`, major indica incompatibilidad, minor nuevas funciones compatibles y patch correcciones. Referencia: https://semver.org/lang/es/.
+`package.json` y `package-lock.json` contienen la versión del motor y la CLI. La versión actual es `0.2.0-alpha.1`, sin publicar en npm. Usar SemVer: antes de `1.0.0`, cambios incompatibles incrementan minor y correcciones compatibles incrementan patch como política interna. Desde `1.0.0`, major indica incompatibilidad, minor nuevas funciones compatibles y patch correcciones. Referencia: https://semver.org/lang/es/.
 
 El esquema YAML y el reporte JSON tienen versiones de formato independientes de la versión del paquete. Los paquetes de reglas incorporados viajan con el motor. La distribución independiente y versionada de paquetes externos está pendiente; por ahora los YAML locales se versionan en Git junto al proyecto.
 

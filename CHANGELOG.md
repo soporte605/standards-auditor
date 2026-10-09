@@ -4,6 +4,10 @@ Cambios relevantes del proyecto, versionado conforme a SemVer.
 
 ## [Unreleased]
 
+### Changed
+
+- README orientado a la primera instalación, configuración y adopción en CI, con referencia detallada de uso separada.
+
 ## [0.1.0-alpha.1] - 2026-10-08
 
 ### Changed

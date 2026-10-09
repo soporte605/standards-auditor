@@ -1,72 +1,90 @@
 # Standards Auditor
 
-Paquete de consola en TypeScript para auditar estándares de ingeniería mediante reglas YAML adaptables a cada equipo. El motor es independiente del lenguaje del proyecto; cada detector declara qué puede revisar.
+**Audita los estándares de tu equipo desde la consola y explora los resultados en un reporte HTML.**
 
-## Estado
+Un paquete TypeScript para comprobar reglas YAML en proyectos existentes: documentación requerida, restricciones en pruebas TypeScript y mínimos de cobertura. Cada equipo elige sus convenciones y severidades. También permite conservar guías Markdown junto al proyecto.
 
-Versión de desarrollo `0.1.0-alpha.1`. Nombre provisional, sin publicación en npm. Funciona con Node.js 22 o superior; no necesita Rust ni compiladores nativos. Se distribuye JavaScript compilado, no requiere compilar TypeScript al instalar el paquete.
+**Estado:** `0.1.0-alpha.1` · Requiere **Node.js 22 o superior y npm** · Probado en Linux, macOS y Windows con Node 22 y 24.
 
-Disponible: `init`, `check`, `explain`, `rules add`, `rules list`, paquetes locales, severidades, exclusiones y reportes JSON y HTML. Detectores actuales: archivos obligatorios, `any` explícito y directivas `@ts-ignore`/`@ts-nocheck` en TypeScript. Incluye un inventario visual de pruebas asociadas, cobertura importada y mínimos globales optativos mediante `coverage-thresholds`. Todavía no valida SemVer, estructura de changelog ni arquitectura Angular.
+> Versión alpha para pruebas piloto. Se instala desde el paquete descargable de GitHub; todavía no está publicada en npm. El repositorio es privado y requiere acceso para descargarlo.
 
-## Probar desde el repositorio
+[Descargar versión](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1) · [Referencia de configuración](docs/usage.md) · [Plan de desarrollo](docs/roadmap.md) · [Changelog](CHANGELOG.md)
+
+## Qué puedes hacer hoy
+
+| Capacidad             | Disponible                                                                      |
+| --------------------- | ------------------------------------------------------------------------------- |
+| Estándares por equipo | Packs YAML locales, severidades `error` / `warning` y desactivación con `off`   |
+| Documentación         | Comprobar que existan los archivos requeridos                                   |
+| Pruebas TypeScript    | Detectar `any` explícito, `@ts-ignore` y `@ts-nocheck`                          |
+| Cobertura             | Importar Istanbul `json-summary` y exigir mínimos globales por métrica          |
+| Guías Markdown        | Importar una copia intacta, registrar ámbito y detectar cambios mediante hashes |
+| Resultados            | Resumen en consola, JSON para automatización y HTML independiente               |
+| Árbol del proyecto    | Mostrar pruebas asociadas por nombre y cobertura disponible por archivo         |
+
+El motor no requiere Angular. Las reglas de análisis de código actuales son específicas de TypeScript; cambiar patrones permite inventariar otros lenguajes, pero no añade automáticamente un analizador para ellos.
+
+**Todavía no interpreta las instrucciones del Markdown, genera unit tests, ejecuta el runner ni valida SemVer o la estructura de changelogs.** El inventario no demuestra que un archivo esté probado: muestra asociaciones según tus convenciones.
+
+## Inicio rápido
+
+### 1. Descarga e instala
+
+Descarga `standards-auditor-0.1.0-alpha.1.tgz` desde la [prerelease](https://github.com/soporte605/standards-auditor/releases/tag/v0.1.0-alpha.1). No elijas los archivos automáticos “Source code”: el `.tgz` contiene el ejecutable ya compilado.
+
+En una terminal situada dentro del proyecto que quieres auditar, instala el archivo indicando su ubicación real:
 
 ```sh
-npm ci
-npm run build
-node dist/cli.js --help
-node dist/cli.js init
-node dist/cli.js check
+npm install --save-dev /ruta/al/standards-auditor-0.1.0-alpha.1.tgz
+npx standards-auditor --version
 ```
 
-`init` crea `auditor.yaml` con documentación básica habilitada. No sobrescribe archivos ni activa convenciones Angular por defecto. No es un asistente interactivo todavía.
+En Windows también puedes usar una ruta como `C:/Downloads/standards-auditor-0.1.0-alpha.1.tgz`. Pon la ruta entre comillas si contiene espacios. No necesitas Rust ni compilar TypeScript para instalarlo.
 
-## Instalar el paquete local en otro proyecto
-
-Desde este repositorio:
+### 2. Inicializa el proyecto
 
 ```sh
-npm pack
-```
-
-Después, desde el proyecto que quieres auditar, indicando la ruta real al archivo generado:
-
-```sh
-npm install --save-dev /ruta/standards-auditor-0.1.0-alpha.1.tgz
 npx standards-auditor init
-npx standards-auditor check
-npx standards-auditor explain docs.required-files
 ```
 
-Puedes agregar `"audit:standards": "standards-auditor check"` a los scripts del proyecto. El auditor se instala como dependencia de desarrollo y su versión queda fijada por el lockfile del proyecto consumidor. No hay descarga de ejecutables por plataforma ni scripts de instalación propios.
+Crea `auditor.yaml` con el pack de documentación habilitado y un inventario informativo. No sobrescribe una configuración existente. El pack inicial exige un `README.md`; si falta, la primera auditoría lo señalará.
 
-## Adjuntar las guías del equipo
-
-Después de `init`, importa un Markdown UTF-8 sin cambiar su contenido:
+### 3. Ejecuta la primera auditoría
 
 ```sh
-npx standards-auditor rules add ./unit-testing.md --id team.unit-testing --include 'src/**/*.ts'
-npx standards-auditor rules list
-npx standards-auditor check --details
+npx standards-auditor check
 ```
 
-`--id` es obligatorio: segmentos en minúsculas separados por puntos, con números o guiones después de la letra inicial. `--include` puede repetirse; si se omite, el ámbito registrado es `**/*`. Son ámbitos declarados para futura planificación/revisión; esta entrega no interpreta el Markdown ni calcula qué archivos cumplen sus instrucciones.
+Verás errores, advertencias, fuentes con pruebas asociadas y el estado de la cobertura. El auditor no ejecuta pruebas ni modifica tu código.
 
-La copia queda en `.auditor/rules/<id>.md` y el registro en `.auditor/guides.yaml`. Ambos se pueden versionar en Git. El registro guarda nombre de origen, ámbito y SHA-256 importado; no guarda la ruta absoluta original. Puedes editar la copia: el listado mostrará `modificada` y su hash actual. La fuente externa no se sincroniza automáticamente.
+Para consultar el detalle o abrir el reporte visual:
 
-No se sobrescriben guías existentes. Para una segunda guía usa otro ID. Si una guía registrada falta o es inválida, la auditoría termina con código 2. El registro y las copias no admiten symlinks. Importaciones simultáneas se rechazan mediante un lock; después de una interrupción abrupta, elimina `.auditor/guides.lock` solo tras comprobar que no hay otra importación activa.
+```sh
+npx standards-auditor check --details
+npx standards-auditor check --open
+```
 
-La raíz de destino es la carpeta de `--config`; la ruta del Markdown de entrada es relativa al directorio desde donde ejecutas el comando. No cambia `auditor.yaml` ni habilita detectores. El registro tiene su propio esquema v1, independiente del esquema v2 de configuración propuesto en los documentos de diseño.
+`--open` genera `reports/standards-auditor.html` y solicita abrirlo en el navegador. El reporte contiene gráficas de cobertura cuando hay datos, árbol de archivos y hallazgos desplegables. Funciona sin internet.
 
-`check --format json` incluye metadatos y hashes de las guías; `check --details` y las notas del HTML muestran su procedencia y ámbito. La presencia de una guía no cuenta como regla evaluada. La clasificación automática, la generación de pruebas y la migración al esquema v2 siguen pendientes.
+## Configura los estándares de tu equipo
 
-## Configuración
+Hay tres piezas con funciones diferentes:
+
+| Archivo                                      | Para qué sirve                                                 |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| `auditor.yaml`                               | Seleccionar packs, severidades, exclusiones e inventario       |
+| Un pack como `rules/team.yaml`               | Definir comprobaciones mediante detectores disponibles         |
+| Una guía como `.auditor/rules/team.tests.md` | Conservar instrucciones humanas para revisión y trabajo futuro |
+
+### Habilitar reglas TypeScript
+
+Este ejemplo completo de `auditor.yaml` utiliza solo packs incorporados; no requiere crear otros archivos:
 
 ```yaml
 schema-version: 1
 packs:
   - builtin:docs
   - builtin:typescript-tests
-  - ./rules/team.yaml
 exclude:
   - '**/generated/**'
 rules:
@@ -74,114 +92,53 @@ rules:
   typescript.no-suppression: error
 ```
 
-Los paquetes de la lista están habilitados; omitir uno lo deshabilita. `rules` permite `off`, `warning` o `error`. Para ajustar rutas, patrones, explicaciones o archivos obligatorios, crea un paquete local como [este ejemplo](examples/team.yaml). Los identificadores deben ser únicos entre paquetes.
-
-La raíz auditada es la carpeta que contiene la configuración. `--config ruta/auditor.yaml` selecciona otra raíz. Las exclusiones afectan al descubrimiento de fuentes, no a la presencia de documentos obligatorios. `node_modules`, `.git`, `dist`, `coverage`, `target` y `reports` se excluyen del análisis de fuentes por defecto.
+`builtin:typescript-tests` analiza archivos `.spec` y `.test` con extensiones `ts`, `tsx`, `mts` y `cts`. `warning` informa sin bloquear; `error` bloquea cuando hay un incumplimiento; `off` desactiva una regla del pack seleccionado.
 
 ```sh
-npx standards-auditor check --format json
+npx standards-auditor explain typescript.no-any
 ```
 
-Códigos de salida: `0` sin errores de reglas (puede haber advertencias); `1` incumplimientos de severidad error; `2` fallo de uso, configuración, ejecución o evidencia obligatoria de cobertura incompleta. Los errores operativos van a stderr. Un alcance sin archivos se indica en `notices`; no demuestra calidad ni cobertura. `check` no ejecuta el código del proyecto ni genera o modifica pruebas.
+Para exigir otros documentos o definir ámbitos diferentes, crea un [pack local](examples/team.yaml) y agrega su ruta a `packs`. Cada ID debe ser único. Agregar prosa a un pack no crea un detector nuevo.
 
-## Resumen de consola
+La raíz del proyecto es la carpeta que contiene `auditor.yaml`. Puedes seleccionarla explícitamente:
 
 ```sh
-npx standards-auditor check
-npx standards-auditor check --details
+npx standards-auditor check --config ./otro-proyecto/auditor.yaml
 ```
 
-`check` muestra únicamente el resultado general, pruebas asociadas, cobertura de líneas disponible y número de notas de alcance. No crea un HTML ni abre el navegador. Usa `--details` para ver todos los archivos, reglas y explicaciones de los hallazgos en consola. La salida JSON conserva el reporte completo.
+### Adjuntar las guías del equipo
 
-## Reporte HTML
+Prepara tu guía en Markdown UTF-8 e impórtala:
 
 ```sh
-npx standards-auditor check --open
-npx standards-auditor check --format html
-npx standards-auditor check --format html --output reports/auditoria.html
+npx standards-auditor rules add ./unit-testing.md --id team.tests --include "src/**/*.ts"
+npx standards-auditor rules list
 ```
 
-`--open` genera el reporte y solicita abrirlo en el navegador predeterminado. `--format html` solo lo guarda y muestra su ruta. Si la apertura falla, conserva el archivo y avisa sin cambiar el resultado de la auditoría. La salida predeterminada es `reports/standards-auditor.html`, relativa al directorio desde el que ejecutas el comando, incluso si usas `--config`. Crea las carpetas necesarias y reemplaza el reporte anterior de esa ruta. `--output` se usa con `--format html` o `--open` y admite extensiones `.html` o `.htm`. No se combina `--open` con JSON/texto explícito ni `--details` con HTML.
+La copia queda en `.auditor/rules/team.tests.md`; su registro, ámbito y hash importado se guardan en `.auditor/guides.yaml`. Puedes versionar ambos en Git y editar la copia. El listado indicará si fue modificada.
 
-La primera vista muestra el resultado y gráficas circulares de líneas, ramas, funciones y sentencias cuando existen totales de cobertura importados. Un panel independiente resume las pruebas asociadas. El árbol, los hallazgos, el origen de los datos y las notas quedan plegados para consultarlos a petición; los filtros y la búsqueda están dentro de cada detalle. Es un único archivo que funciona sin internet ni recursos externos. Puedes compartirlo o imprimirlo desde el navegador; la impresión incluye todos los hallazgos aunque haya filtros activos. Sin JavaScript, el detalle sigue siendo visible.
+**Importar la guía no activa reglas automáticas.** En esta versión, el ámbito se registra como información para revisión; el contenido no se interpreta ni se evalúa contra el código. Consulta los [detalles de las guías](docs/usage.md#adjuntar-las-guías-del-equipo).
 
-El reporte se genera también cuando hay incumplimientos (`1`) o evidencia obligatoria de cobertura incompleta (`2`). Errores de configuración o escritura devuelven `2` y pueden impedir la generación. El navegador solo se solicita con `--open`. El formato JSON conserva su comportamiento; la consola es resumida por defecto. El HTML muestra hallazgos y, cuando se aporta un reporte compatible, cobertura medida. No calcula una calificación de calidad. Ten en cuenta que contiene rutas relativas y mensajes de tu proyecto.
+## Configura cobertura y bloqueo en CI
 
-## Árbol, pruebas y cobertura
+Primero genera un reporte **Istanbul `json-summary`** con el runner de tu proyecto. El auditor lee ese artefacto; no acepta `coverage-final.json` ni ejecuta los tests por ti.
 
-El mapa del proyecto está habilitado por defecto. Muestra `src/`, `test/`, `tests/`, `README.md`, `package.json` y `auditor.yaml`. Solo las fuentes incluidas en `sources` se marcan como candidatas a tener pruebas; documentos y otros archivos no aparecen como pruebas faltantes. Cambia `include` a `['**/*']` para ampliar el árbol, manteniendo las exclusiones.
+### Mostrar cobertura en el árbol y las gráficas
+
+Agrega este bloque a `auditor.yaml`:
 
 ```yaml
 inventory:
-  enabled: true
-  include: ['src/**', 'tests/**', 'README.md', 'package.json']
-  sources: ['src/**/*.{ts,tsx,js,jsx}']
-  source-exclude: ['**/*.{spec,test}.*', '**/*.d.ts', '**/__tests__/**']
-  test-patterns:
-    - '{dir}/{name}.spec{ext}'
-    - '{dir}/{name}.test{ext}'
-    - 'tests/{path}.test{ext}'
   coverage:
     report: coverage/coverage-summary.json
     minimum-lines: 85
-  max-files: 1000
 ```
 
-`{dir}` es la carpeta relativa de la fuente, `{name}` su nombre sin extensión, `{ext}` su extensión con punto y `{path}` la ruta relativa sin extensión. Por ejemplo, para `src/users/user.service.ts`, `{name}` es `user.service` y `{path}` es `src/users/user.service`. Se admiten patrones glob; los fragmentos extraídos de rutas se escapan como texto literal.
+`minimum-lines` es una referencia visual. **Para bloquear CI necesitas la regla siguiente.**
 
-Los valores predeterminados reconocen fuentes JavaScript/TypeScript y pruebas `.spec`/`.test` junto al código, `__tests__` y algunas convenciones en `test/` y `tests/`. No se inspeccionan imports ni se ejecutan pruebas. Un test compartido puede asociarse por nombre con varias fuentes; una asociación no garantiza cobertura. Para Angular con la estrategia del documento original, puedes limitar `sources` a `['src/**/*.facade.ts', 'src/**/*.service.ts']`.
+### Exigir mínimos globales
 
-Para otro lenguaje, cambia las convenciones. Ejemplo de Python:
-
-```yaml
-inventory:
-  include: ['app/**', 'tests/**']
-  sources: ['app/**/*.py']
-  test-patterns: ['tests/test_{name}.py']
-```
-
-Esto asocia archivos por convención; no añade un analizador semántico Python.
-
-Los filtros del árbol muestran fuentes **sin test asociado**, **sin dato de líneas** o **bajo el objetivo de líneas**. Expandir un archivo muestra las pruebas asociadas y las métricas disponibles. El inventario es informativo: no agrega incumplimientos ni cambia los códigos de salida. Una ruta de cobertura configurada con un archivo corrupto sí es un error operativo (`2`).
-
-La cobertura se importa del formato [Istanbul `json-summary`](https://istanbul.js.org/docs/advanced/alternative-reporters/), no de `coverage-final.json`. Debes generar previamente ese reporte con tu herramienta de pruebas. No se cambia ni se deduce la configuración del runner. Se distinguen:
-
-- Reporte no configurado en el auditor.
-- Reporte configurado pero no encontrado.
-- Reporte disponible, pero sin dato para un archivo.
-- Porcentaje medido, incluido `0%`.
-- Objetivo de líneas no definido o porcentaje inferior al objetivo configurado.
-
-Se muestran líneas, ramas, funciones y sentencias cuando están disponibles. La comparación visual usa solo líneas. El total proviene del reporte y puede incluir archivos fuera del árbol. Las rutas por archivo deben ser relativas a la raíz auditada o absolutas dentro de ella; no se adivinan equivalencias de otras máquinas. La fecha de modificación del reporte es informativa y no certifica que sus datos correspondan al código actual.
-
-`exclude` también limita el árbol y la búsqueda de tests. `source-exclude` solo excluye candidatos a fuente; no oculta esos archivos del árbol. La ruta de cobertura se lee explícitamente aunque `coverage/` esté excluida del descubrimiento. `max-files` limita el árbol y sus conteos; cuando se recorta, se indica claramente. `inventory.enabled: false` desactiva el inventario y su lectura de cobertura; las reglas `coverage-thresholds` habilitadas siguen leyendo sus propios reportes.
-
-## Desarrollo
-
-```sh
-npm ci
-npm run check
-npm pack --dry-run
-```
-
-Estructura: `src/cli.ts` como entrada, `src/commands.ts` para los comandos, `src/text-report.ts` para el resumen de consola, `src/config.ts` para la configuración, `src/engine.ts` para la ejecución, `packs/` para los paquetes incorporados y `test/` para pruebas del comportamiento público.
-
-Consulta la [clasificación de tus reglas](docs/rules-analysis.md), [arquitectura](docs/architecture.md), [roadmap](docs/roadmap.md), [contribución](CONTRIBUTING.md) y [versiones](docs/releasing.md).
-
-La licencia y el nombre público están pendientes. `private: true` evita publicar accidentalmente; no impide empaquetar e instalar el archivo local.
-
-## Mínimos de cobertura para CI
-
-Copia [examples/coverage.yaml](examples/coverage.yaml) a `rules/coverage.yaml` de tu proyecto y agrega el pack a la lista existente de `auditor.yaml`:
-
-```yaml
-schema-version: 1
-packs:
-  - builtin:docs
-  - rules/coverage.yaml
-```
-
-El pack define una regla optativa:
+Crea la carpeta `rules/` y guarda este contenido como `rules/coverage.yaml`:
 
 ```yaml
 schema-version: 1
@@ -199,27 +156,94 @@ rules:
       statements: 85
 ```
 
-`report` es relativo a la carpeta de `auditor.yaml`, incluso si el pack está en otra carpeta. Define una o varias métricas; los mínimos admiten números de 0 a 100 y la igualdad cumple. El 85% es un ejemplo editable, no un mínimo impuesto por el motor. No se activa por importar una guía Markdown.
+Agrega `rules/coverage.yaml` a la lista `packs` existente de `auditor.yaml`, conservando los packs que ya utilizas. El [archivo de ejemplo](examples/coverage.yaml) está disponible para copiarlo.
 
-Genera primero el `json-summary` con el runner de tu proyecto y ejecuta:
+Los mínimos son editables: puedes exigir una o varias métricas, entre 0 y 100. Un valor igual al mínimo cumple. La ruta del reporte es relativa a `auditor.yaml`, no al archivo del pack.
 
-```sh
-npx standards-auditor check
-npx standards-auditor check --details
-npx standards-auditor check --format html --output reports/audit.html
-npx standards-auditor explain team.coverage
+La comprobación usa el `total` global del reporte, incluso con el inventario desactivado. No promedia archivos ni aplica las exclusiones del árbol a ese total. La fecha y el hash identifican el artefacto, pero no demuestran que corresponda al código actual: **genera cobertura antes de auditar en CI**.
+
+## Comandos y reportes
+
+| Necesidad                     | Comando                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| Crear configuración           | `npx standards-auditor init`                                            |
+| Resumen de consola            | `npx standards-auditor check`                                           |
+| Detalle completo              | `npx standards-auditor check --details`                                 |
+| Generar HTML y abrirlo        | `npx standards-auditor check --open`                                    |
+| Guardar HTML sin abrirlo      | `npx standards-auditor check --format html --output reports/audit.html` |
+| Emitir JSON                   | `npx standards-auditor check --format json`                             |
+| Explicar una regla habilitada | `npx standards-auditor explain team.coverage`                           |
+| Listar guías                  | `npx standards-auditor rules list`                                      |
+| Consultar ayuda               | `npx standards-auditor --help`                                          |
+
+La salida HTML se resuelve desde el directorio de ejecución, también cuando usas `--config`. Reemplaza el reporte anterior en esa ruta. Si el navegador no abre, el archivo permanece disponible. Los reportes contienen rutas y mensajes del proyecto.
+
+### Códigos de salida
+
+| Código | Significado                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------ |
+| `0`    | Sin incumplimientos de nivel error ni evidencia obligatoria incompleta; puede haber advertencias |
+| `1`    | Al menos un incumplimiento de nivel error                                                        |
+| `2`    | Error de uso, configuración o ejecución; o cobertura obligatoria que no pudo evaluarse           |
+
+Un reporte de cobertura ausente, inválido o sin la métrica global requerida no equivale a `0%`: se muestra como `not-evaluated`. Cuando conviven incumplimientos y evidencia obligatoria incompleta, prevalece `2`. Una regla `warning` informa sin bloquear por sí misma.
+
+JSON y HTML conservan las evaluaciones de cobertura incompletas. Un error de configuración o de escritura sí puede impedir generar el reporte. Consulta la [referencia completa](docs/usage.md) para ámbitos, patrones, hashes y campos JSON.
+
+## Integración en el equipo
+
+Puedes añadir estos scripts al `package.json` existente, conservando los demás:
+
+```json
+{
+  "scripts": {
+    "audit:standards": "standards-auditor check",
+    "audit:standards:html": "standards-auditor check --format html --output reports/audit.html"
+  }
+}
 ```
 
-| Estado por métrica | Evidencia                                                                  | Efecto de una regla `error` |
-| ------------------ | -------------------------------------------------------------------------- | --------------------------- |
-| `pass`             | Porcentaje igual o mayor al mínimo                                         | No agrega incumplimiento    |
-| `fail`             | Porcentaje inferior al mínimo, incluido cero real                          | Salida 1                    |
-| `not-evaluated`    | Reporte ausente, ilegible, inválido, sin total o sin porcentaje disponible | Salida 2                    |
+En CI, instala dependencias, ejecuta el comando de tests/cobertura de tu proyecto y después `npm run audit:standards`. Conserva el código de salida para que los incumplimientos bloqueen el proceso. Si guardas HTML como artefacto, configura su recolección también cuando la auditoría falle.
 
-Si hay incumplimientos y evidencia obligatoria incompleta, prevalece 2; todos los resultados permanecen en el reporte. Con `severity: warning`, los incumplimientos y evaluaciones incompletas se muestran sin bloquear. También puedes sobrescribir `team.coverage: warning` u `off` dentro de `rules` en `auditor.yaml`. Una regla deshabilitada no evalúa su artefacto; el inventario aún puede leerlo si está configurado por separado.
+Con esta distribución local, `package-lock.json` puede referenciar la ruta del `.tgz`: el archivo debe estar disponible en esa ruta también para los compañeros y CI. Puedes guardarlo en una carpeta versionada `vendor/` e instalar desde allí, o descargarlo en un paso autenticado antes de `npm ci`. Un archivo ubicado solo en tu carpeta Downloads no estará disponible en otro equipo.
 
-JSON agrega `coverageEvaluations`, con mínimo, valor medido, estado, severidad y evidencia (ruta, hash SHA-256 y fecha). `summary.notEvaluated` cuenta métricas sin evaluar y `requiredIncomplete` las de nivel error. `evaluatedRules` sigue contando reglas habilitadas, no métricas. Consola y HTML muestran el mismo resultado, incluso si el inventario está desactivado.
+Para una primera adopción, revisa los hallazgos y ajusta ámbitos y severidades antes de exigirlos a todo el equipo.
 
-Esta entrega usa exclusivamente `total` del reporte; no promedia porcentajes por archivo, no aplica las exclusiones del árbol a ese total y no deduce el ámbito del runner. Los mínimos por archivo y la verificación de actualidad quedan pendientes. Un hash identifica el artefacto leído; su fecha no demuestra que corresponda al código actual. Un reporte antiguo puede satisfacer los mínimos: ejecuta el runner antes de la auditoría en CI.
+## Problemas frecuentes
 
-`inventory.coverage.minimum-lines` conserva su función visual e independiente. No habilita una política de bloqueo; las gráficas del inventario y las reglas pueden incluso usar reportes distintos, identificados por sus rutas. Cuando comparten la misma ruta, reutilizan la misma lectura. Un reporte inválido usado por una política se presenta como evidencia incompleta; uno configurado solo para inventario conserva el error operativo existente.
+| Situación                                     | Qué revisar                                                                          |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `init` indica que el archivo ya existe        | Edita el `auditor.yaml` existente; no hace falta reinicializar                       |
+| No encuentra configuración                    | Ejecuta desde su carpeta o utiliza `--config`                                        |
+| “Ningún archivo coincide”                     | Comprueba patrones y exclusiones; un ámbito vacío no demuestra cumplimiento          |
+| Aparece “sin test asociado”                   | Ajusta `inventory.test-patterns`; se asocian nombres, no ejecución ni imports        |
+| No aparecen gráficas de cobertura             | Configura `inventory.coverage.report` y genera un `json-summary` con totales         |
+| La auditoría devuelve `2` por cobertura       | Comprueba ruta, formato y porcentajes globales requeridos                            |
+| Edité la guía original y no cambia el listado | La importación crea una copia independiente; edita el archivo bajo `.auditor/rules/` |
+| Falla `npm ci` en otra máquina                | Comprueba que tenga acceso al `.tgz` indicado por el lockfile                        |
+
+Para adaptar el árbol a Angular, Python u otras convenciones, consulta [inventario y patrones](docs/usage.md#árbol-pruebas-y-cobertura). Esta configuración no añade soporte semántico de nuevos lenguajes.
+
+## Desarrollo y documentación
+
+Desde un clon de este repositorio:
+
+```sh
+npm ci
+npm run check
+npm pack
+```
+
+`check` valida tipos, formato y pruebas. `npm pack` compila y genera el `.tgz` instalable. Para ejecutar directamente el código compilado, usa `node dist/cli.js --help`.
+
+- [Referencia de uso](docs/usage.md): opciones y comportamiento actual.
+- [Arquitectura](docs/architecture.md): módulos, evidencia y límites.
+- [Contrato de producto](docs/product-contract.md) y [roadmap](docs/roadmap.md): dirección y capacidades pendientes.
+- [Catálogo de reglas](docs/rule-catalog.md): principios generales y convenciones Angular/Vitest.
+- [Contribución](CONTRIBUTING.md) y [publicación](docs/releasing.md): ramas, validación y versiones.
+
+Los documentos de diseño incluyen propuestas de esquema v2; **la CLI publicada utiliza esquema v1**. No copies una configuración propuesta como si ya estuviera implementada.
+
+## Licencia y distribución
+
+El paquete está marcado como `UNLICENSED` y `private: true`. El nombre público y la licencia de distribución siguen pendientes; no se publica en npm. La prerelease de GitHub permite instalar el paquete local para evaluar la herramienta.

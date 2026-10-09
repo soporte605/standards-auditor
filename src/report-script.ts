@@ -1,6 +1,5 @@
 /** One inline script; audit data only reaches it through escaped data-* attributes. */
-export const reportScript = `
-document.documentElement.classList.add('js');
+const body = `
 const tabs = Array.from(document.querySelectorAll('[role=tab]'));
 const panels = Array.from(document.querySelectorAll('[role=tabpanel]'));
 function show(id) {
@@ -149,5 +148,29 @@ window.addEventListener('beforeprint', function () {
 });
 window.addEventListener('afterprint', function () {
   for (const entry of printState) entry[0].open = entry[1];
+});
+`;
+
+export const reportScript = `
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+  var saved = null;
+  try { saved = localStorage.getItem('sa-theme'); } catch (error) {}
+  if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+})();
+document.addEventListener('DOMContentLoaded', function () {
+  for (const b of document.querySelectorAll('[data-theme-set]')) {
+    const pressed = (document.documentElement.dataset.theme || 'system') === b.dataset.themeSet;
+    b.setAttribute('aria-pressed', String(pressed));
+    b.addEventListener('click', function () {
+      const value = b.dataset.themeSet;
+      if (value === 'system') delete document.documentElement.dataset.theme;
+      else document.documentElement.dataset.theme = value;
+      try { if (value === 'system') localStorage.removeItem('sa-theme'); else localStorage.setItem('sa-theme', value); } catch (error) {}
+      for (const o of document.querySelectorAll('[data-theme-set]')) o.setAttribute('aria-pressed', String(o === b));
+    });
+  }
+${body}
 });
 `;

@@ -11,7 +11,7 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 - El producto se centra en la salud de las pruebas unitarias: `init` activa `typescript-tests`, `testing` y, con Angular, `angular`. Los packs `docs` y las reglas de tipado quedan como opcionales (ejemplo en `examples/packs/`).
 - `builtin:angular` contiene solo reglas de pruebas.
-- Reporte HTML rediseñado en seis pestañas (Resumen, Reglas, Mapa, Cobertura, Hallazgos y Notas): indicadores, «por dónde empezar», mapa con una celda por archivo (por prueba o por cobertura) y árbol, cobertura con mínimos y archivos peor cubiertos, y listado filtrable. Tipografía sans-serif de sistema, tema oscuro o claro y colores de estado con ícono y texto.
+- Reporte HTML rediseñado en seis pestañas (Resumen, Reglas, Mapa, Cobertura, Hallazgos y Notas): indicadores, «por dónde empezar», mapa con una celda por archivo (por prueba o por cobertura) y árbol, cobertura con mínimos y archivos peor cubiertos, y listado filtrable. Tipografía sans-serif de sistema, selector de tema (sistema, claro u oscuro) que recuerda tu elección, diseño adaptable de móvil a escritorio y colores de estado con ícono y texto.
 - README de una pantalla; la guía anterior pasa a `docs/guia-completa.md`.
 
 ### Añadido

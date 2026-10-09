@@ -5,6 +5,7 @@ import { renderFindings, renderNotes } from './report-lists.js';
 import { renderCoverage, renderMap } from './report-map.js';
 import { renderRules, renderSummary, verdict } from './report-overview.js';
 import { reportScript } from './report-script.js';
+import { icon } from './report-ui.js';
 
 /** A self-contained, offline report. Untrusted audit data never enters scripts. */
 export function renderHtml(
@@ -33,9 +34,10 @@ export function renderHtml(
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <title>Auditoría · ${escapeHtml(context.project)}</title>
 <style>${reportCss}</style>
+<script>${reportScript}</script>
 </head>
 <body><main>
-<div class="top"><div class="brand"><span class="logo" aria-hidden="true">sa/</span><div><h1>${escapeHtml(context.project)}</h1><p>Standards Auditor · estado frente a los estándares de tu equipo</p></div></div><time datetime="${context.generatedAt.toISOString()}">${escapeHtml(stamp)}</time></div>
+<div class="top"><div class="brand"><span class="logo" aria-hidden="true">sa/</span><div><h1>${escapeHtml(context.project)}</h1><p>Standards Auditor · estado frente a los estándares de tu equipo</p></div></div><div class="theme seg" role="group" aria-label="Tema"><button type="button" data-theme-set="system" aria-pressed="true" title="Tema del sistema" aria-label="Tema del sistema">${icon('system')}</button><button type="button" data-theme-set="light" aria-pressed="false" title="Tema claro" aria-label="Tema claro">${icon('sun')}</button><button type="button" data-theme-set="dark" aria-pressed="false" title="Tema oscuro" aria-label="Tema oscuro">${icon('moon')}</button></div><time datetime="${context.generatedAt.toISOString()}">${escapeHtml(stamp)}</time></div>
 <nav class="tabs" role="tablist" aria-label="Secciones del reporte">
 ${tab('resumen', 'Resumen')}${tab('reglas', 'Reglas', report.ruleResults.length ? `${passed}/${report.ruleResults.length}` : '', failing ? 'crit' : '')}${tab('mapa', 'Mapa')}${tab('cobertura', 'Cobertura', coverageAlert ? '!' : '', coverageAlert ? 'warn' : '')}${tab('hallazgos', 'Hallazgos', String(report.findings.length), errors ? 'crit' : warnings ? 'warn' : '')}${tab('notas', 'Notas', report.notices.length ? String(report.notices.length) : '')}
 </nav>
@@ -47,6 +49,5 @@ ${panel('hallazgos', renderFindings(report))}
 ${panel('notas', renderNotes(report))}
 <footer><span>Standards Auditor · reporte HTML independiente (${verdict(report).title})</span><span>Solo se evalúan las reglas y el alcance configurados.</span></footer>
 </main>
-<script>${reportScript}</script>
 </body></html>`;
 }

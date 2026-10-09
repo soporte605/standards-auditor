@@ -45,7 +45,7 @@ export function renderNotes(report: Report): string {
       `<h2 class="panel-title">Guías del equipo (${guides.length})</h2><div class="card"><table class="table"><thead><tr><th>Guía</th><th>Ámbito</th><th>Estado</th></tr></thead><tbody>${guides
         .map(
           (g) =>
-            `<tr><td><b>${e(g.id)}</b><div class="row-sub"><code>${e(g.path)}</code></div></td><td><code>${e(g.include.join(', '))}</code></td><td><span class="pill" data-tone="${g.modified ? 'warn' : 'good'}">${g.modified ? 'Modificada' : 'Original'}</span><div class="row-sub"><code>${e(g.sha256.slice(0, 12))}</code></div></td></tr>`,
+            `<tr><td data-label="Guía"><b>${e(g.id)}</b><div class="row-sub"><code>${e(g.path)}</code></div></td><td data-label="Ámbito"><code>${e(g.include.join(', '))}</code></td><td data-label="Estado"><span class="pill" data-tone="${g.modified ? 'warn' : 'good'}">${g.modified ? 'Modificada' : 'Original'}</span><div class="row-sub"><code>${e(g.sha256.slice(0, 12))}</code></div></td></tr>`,
         )
         .join(
           '',

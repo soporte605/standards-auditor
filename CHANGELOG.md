@@ -16,7 +16,12 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Añadido
 
+- Ajustes por regla en `auditor.yaml`: además de la severidad, `minimum`, `sources`, `source-exclude` e `include` según el detector, para acotar un pack a una app de un monorepo o cambiar un umbral sin copiarlo.
 - Cada hallazgo de «falta una prueba» incluye `suggestion`, la ruta del archivo de prueba a crear, en consola (`--details`), JSON y HTML.
+
+### Corregido
+
+- El inventario ya no se limita a `src/` en la raíz: con monorepos (`apps/`, `packages/`) muestra las fuentes reales en lugar de «sin fuentes».
 
 ### Eliminado
 

@@ -27,6 +27,23 @@ Cada regla trae `guidance`, que aparece en el panel de salud y en `standards-aud
 
 Las reglas de tipado (`any`, `@ts-ignore`) no forman parte del pack: ya las cubren ESLint y el modo estricto de TypeScript. Hay un ejemplo en [`examples/packs/typescript-estricto.yaml`](../examples/packs/typescript-estricto.yaml) por si tu equipo las quiere.
 
+## Monorepos y ajustes por regla
+
+El pack identifica los artefactos por su sufijo (`*.service.ts`, `*.guard.ts`…) en todo el repositorio. Si conviven un backend (por ejemplo NestJS) y una app Angular, limita la regla a la app y ajusta el umbral desde `auditor.yaml`, sin copiar el pack:
+
+```yaml
+rules:
+  angular.artifacts-have-tests:
+    sources:
+      ['apps/web/**/*.{component,service,directive,pipe,guard,resolver}.ts']
+    minimum: 60 # porcentaje de artefactos con prueba
+  angular.coverage-minimum:
+    severity: error
+    minimum: { lines: 70 } # por métrica
+```
+
+Cada regla admite `severity` y, según su detector: `minimum`, `sources` y `source-exclude` (`source-has-test`), `minimum` (`coverage-thresholds`) o `include` (el resto de detectores de archivos). Un ajuste no válido para esa regla se rechaza con un mensaje.
+
 ## Límites
 
 - Las comprobaciones leen el código; no ejecutan las pruebas ni miden su calidad.

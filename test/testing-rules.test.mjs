@@ -275,3 +275,60 @@ packs: [builtin:angular]
   assert.match(html, /data-copy="src\/app\/user\.service\.spec\.ts"/);
   assert.match(html, /class="status" data-tone="/);
 });
+
+test('rule adjustments scope a pack to one app of a monorepo and change its threshold', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:angular]
+rules:
+  angular.artifacts-have-tests:
+    sources: ['apps/web/**/*.{component,service}.ts']
+    minimum: 100
+  angular.coverage-minimum:
+    severity: error
+    minimum: { lines: 70 }
+`,
+    'apps/web/src/a.service.ts': 'export class A {}\n',
+    'apps/web/src/b.component.ts': 'export class B {}\n',
+    'apps/web/src/b.component.spec.ts': 'export {};\n',
+    'apps/api/src/c.service.ts': 'export class C {}\n',
+  });
+  const report = JSON.parse(run(root, 'check', '--format', 'json').stdout);
+  const missing = report.findings
+    .filter((item) => item.ruleId === 'angular.artifacts-have-tests')
+    .map((item) => item.path);
+  assert.deepEqual(missing, ['apps/web/src/a.service.ts']);
+  const coverage = report.coverageEvaluations.filter(
+    (item) => item.ruleId === 'angular.coverage-minimum',
+  );
+  assert.equal(coverage.length, 1);
+  assert.equal(coverage[0].minimum, 70);
+  assert.equal(coverage[0].severity, 'error');
+  // Sources outside src/ appear in the inventory by default (monorepos).
+  assert.ok(report.inventory.summary.sources >= 3);
+});
+
+test('unsupported or malformed rule adjustments fail with a clear message', async (t) => {
+  for (const [adjust, message] of [
+    [
+      '  testing.has-unit-tests:\n    minimum: 50\n',
+      /no admite el ajuste minimum/,
+    ],
+    [
+      '  angular.artifacts-have-tests:\n    minimum: { lines: 70 }\n',
+      /porcentaje/,
+    ],
+    ['  angular.coverage-minimum:\n    minimum: 80\n', /objeto por métrica/],
+    ['  angular.artifacts-have-tests: {}\n', /al menos un ajuste/],
+  ]) {
+    const root = await fixture(t, {
+      'auditor.yaml': `schema-version: 1
+packs: [builtin:testing, builtin:angular]
+rules:
+${adjust}`,
+    });
+    const result = run(root, 'check');
+    assert.equal(result.status, 2, adjust);
+    assert.match(result.stderr, message);
+  }
+});

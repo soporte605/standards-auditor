@@ -225,7 +225,7 @@ test('HTML report is written even on findings, keeps exit codes and supports nes
   );
   assert.match(html, /<!doctype html>/);
   assert.match(html, /typescript.no-suppression/);
-  assert.match(html, /sample.spec.ts · Línea 1, columna 1/);
+  assert.match(html, /sample\.spec\.ts:1:1/);
   assert.match(html, /Requiere atención/);
   assert.match(result.stdout, /Reporte HTML:/);
   await writeFile(path.join(root, 'sample.spec.ts'), 'const value = 1;');

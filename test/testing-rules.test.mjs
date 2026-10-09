@@ -103,8 +103,8 @@ test('HTML report shows project health with guidance for failing rules', async (
   const output = path.join(root, 'out.html');
   run(root, 'check', '--format', 'html', '--output', output);
   const html = await readFile(output, 'utf8');
-  assert.match(html, /Salud del proyecto/);
-  assert.match(html, /0<small> \/ 2 reglas cumplidas/);
+  assert.match(html, /Reglas cumplidas/);
+  assert.match(html, /0<small>\/ 2<\/small>/);
   assert.match(html, /Cómo cumplirla/);
 });
 
@@ -273,7 +273,7 @@ packs: [builtin:angular]
   run(root, 'check', '--format', 'html', '--output', output);
   const html = await readFile(output, 'utf8');
   assert.match(html, /data-copy="src\/app\/user\.service\.spec\.ts"/);
-  assert.match(html, /class="status" data-tone="/);
+  assert.match(html, /class="verdict" data-tone="/);
 });
 
 test('rule adjustments scope a pack to one app of a monorepo and change its threshold', async (t) => {
@@ -331,4 +331,34 @@ ${adjust}`,
     assert.equal(result.status, 2, adjust);
     assert.match(result.stderr, message);
   }
+});
+
+test('the report is organized in tabs, with one map cell per source and escaped attributes', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:testing]
+rules:
+  testing.source-has-test: error
+`,
+    'src/a.ts': 'export const a = 1;\n',
+    'src/a.spec.ts': 'export {};\n',
+    'src/b"><img src=x onerror=alert(1)>.ts': 'export const b = 1;\n',
+  });
+  const output = path.join(root, 'out.html');
+  run(root, 'check', '--format', 'html', '--output', output);
+  const html = await readFile(output, 'utf8');
+  for (const id of [
+    'resumen',
+    'reglas',
+    'mapa',
+    'cobertura',
+    'hallazgos',
+    'notas',
+  ])
+    assert.match(html, new RegExp(`role="tabpanel" id="panel-${id}"`));
+  assert.equal((html.match(/class="cell"/g) ?? []).length, 2);
+  assert.match(html, /data-has="1"/);
+  assert.match(html, /data-has="0"/);
+  assert.ok(!html.includes('<img src=x'));
+  assert.equal((html.match(/<script>/g) ?? []).length, 1);
 });

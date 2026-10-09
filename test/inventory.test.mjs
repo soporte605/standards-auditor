@@ -78,7 +78,7 @@ test('tree associates colocated and separate tests, excluding dependencies and t
   assert.match(html, /Mapa del proyecto/);
   assert.match(html, /Reporte de cobertura no configurado/);
   assert.match(html, /Objetivo de cobertura de líneas no definido/);
-  assert.match(html, /Sin test asociado/);
+  assert.match(html, /Sin prueba/);
 });
 
 test('custom source and test patterns support a Python project', async (t) => {

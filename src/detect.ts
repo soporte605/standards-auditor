@@ -88,11 +88,11 @@ packs:
   - builtin:docs
   - builtin:typescript-tests
   - builtin:testing
-${angular ? '  - builtin:angular-vitest\n' : ''}  # - ./rules/team.yaml
+${angular ? '  - builtin:angular\n' : ''}  # - ./rules/team.yaml
 exclude: []
 rules:
   # Cambia la severidad (error, warning) o desactiva una regla con off.
-${angular ? '  # Con Angular solo se exige prueba a facades y servicios.\n  testing.source-has-test: off' : '  # testing.source-has-test: error\n  {}'}
+${angular ? '  # Con Angular se exige prueba a componentes, servicios y demás artefactos.\n  testing.source-has-test: off' : '  # testing.source-has-test: error\n  {}'}
 inventory:
   enabled: true
   # Archivos que no necesitan una prueba propia.

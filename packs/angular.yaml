@@ -1,0 +1,76 @@
+schema-version: 1
+name: angular
+rules:
+  - id: angular.artifacts-have-tests
+    detector: source-has-test
+    severity: warning
+    description: Cada componente, servicio, directiva, pipe, guard y resolver tiene su archivo de prueba.
+    guidance: Angular CLI genera un .spec.ts junto a cada artefacto con ng generate. Conserva ese archivo y escribe al menos un caso que compruebe su comportamiento.
+    minimum: 80
+    sources:
+      - '**/*.{component,service,directive,pipe,guard,resolver}.ts'
+    source-exclude:
+      - '**/*.{spec,test}.*'
+      - '**/*.d.ts'
+  - id: angular.no-focused-tests
+    detector: typescript-forbidden-api
+    severity: error
+    description: No dejes pruebas enfocadas (fit, fdescribe, it.only, describe.only); impiden que el resto se ejecute.
+    guidance: Quita el foco antes de subir el código. Si necesitas aislar una prueba mientras depuras, hazlo solo en local.
+    include:
+      - '**/*.{spec,test}.{ts,tsx,mts,cts}'
+    identifiers:
+      - fit
+      - fdescribe
+    members:
+      - it.only
+      - test.only
+      - describe.only
+  - id: angular.no-disabled-tests
+    detector: typescript-forbidden-api
+    severity: warning
+    description: Revisa las pruebas desactivadas (xit, xdescribe, it.skip, describe.skip); una prueba desactivada no protege nada.
+    guidance: Arregla la prueba o elimínala. Si se desactiva de forma temporal, deja un issue enlazado en un comentario.
+    include:
+      - '**/*.{spec,test}.{ts,tsx,mts,cts}'
+    identifiers:
+      - xit
+      - xdescribe
+    members:
+      - it.skip
+      - test.skip
+      - describe.skip
+  - id: angular.no-testbed-get
+    detector: typescript-forbidden-api
+    severity: warning
+    description: TestBed.get está obsoleto; usa TestBed.inject, que conserva el tipo.
+    guidance: Sustituye TestBed.get(Servicio) por TestBed.inject(Servicio).
+    include:
+      - '**/*.spec.{ts,tsx,mts,cts}'
+    members:
+      - TestBed.get
+  - id: angular.no-explicit-any
+    detector: typescript-no-any
+    severity: warning
+    description: Evita any explícito; el modo estricto de TypeScript pierde su valor si el tipo se desactiva.
+    guidance: Usa un tipo concreto, un genérico o unknown con una comprobación de tipo.
+    include:
+      - 'src/**/*.ts'
+  - id: angular.no-ts-suppression
+    detector: typescript-no-suppression
+    severity: error
+    description: Corrige el problema de tipos en lugar de usar @ts-ignore o @ts-nocheck.
+    guidance: Si de verdad no hay alternativa, usa @ts-expect-error con un comentario que explique el motivo.
+    include:
+      - 'src/**/*.ts'
+  - id: angular.coverage-minimum
+    detector: coverage-thresholds
+    severity: warning
+    description: La cobertura alcanza al menos el 80 % en líneas, ramas, funciones y sentencias.
+    guidance: Genera un reporte json-summary (en Vitest, coverage.reporter con 'json-summary'; en Karma, el reporter json-summary de karma-coverage) y ajusta el umbral a lo que acuerde tu equipo.
+    report: coverage/coverage-summary.json
+    minimum:
+      lines: 80
+      branches: 80
+      functions: 80
+      statements: 80

@@ -207,11 +207,7 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
     let packFile: string;
     if (reference.startsWith('builtin:')) {
       const name = reference.slice('builtin:'.length);
-      if (
-        !['docs', 'typescript-tests', 'testing', 'angular-vitest'].includes(
-          name,
-        )
-      ) {
+      if (!['docs', 'typescript-tests', 'testing', 'angular'].includes(name)) {
         throw new Error(`Paquete incorporado desconocido: ${name}`);
       }
       packFile = fileURLToPath(

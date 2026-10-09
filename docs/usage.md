@@ -92,7 +92,7 @@ inventory:
 
 `{dir}` es la carpeta relativa de la fuente, `{name}` su nombre sin extensión, `{ext}` su extensión con punto y `{path}` la ruta relativa sin extensión. Por ejemplo, para `src/users/user.service.ts`, `{name}` es `user.service` y `{path}` es `src/users/user.service`. Se admiten patrones glob; los fragmentos extraídos de rutas se escapan como texto literal.
 
-Los valores predeterminados reconocen fuentes JavaScript/TypeScript y pruebas `.spec`/`.test` junto al código, `__tests__` y algunas convenciones en `test/` y `tests/`. No se inspeccionan imports ni se ejecutan pruebas. Un test compartido puede asociarse por nombre con varias fuentes; una asociación no garantiza cobertura. Para Angular con la estrategia del documento original, puedes limitar `sources` a `['src/**/*.facade.ts', 'src/**/*.service.ts']`.
+Los valores predeterminados reconocen fuentes JavaScript/TypeScript y pruebas `.spec`/`.test` junto al código, `__tests__` y algunas convenciones en `test/` y `tests/`. No se inspeccionan imports ni se ejecutan pruebas. Un test compartido puede asociarse por nombre con varias fuentes; una asociación no garantiza cobertura. Si tu equipo prueba solo ciertas capas (por ejemplo, servicios), limita `sources` a `['src/**/*.service.ts']`.
 
 Para otro lenguaje, cambia las convenciones. Ejemplo de Python:
 

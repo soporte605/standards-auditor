@@ -1,6 +1,6 @@
 {
   "name": "standards-auditor",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.2",
   "description": "Auditor configurable de estándares de ingeniería mediante paquetes YAML",
   "private": true,
   "license": "MIT",

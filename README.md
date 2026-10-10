@@ -4,7 +4,7 @@
 
 Tu equipo define dónde debe haber pruebas. Standards Auditor revisa el proyecto, dice qué archivos no tienen la suya, cuál sería su ruta y muestra la salud del proyecto en un reporte pensado para desarrolladores. Pensado para equipos con TypeScript (Angular y Vitest, Jest o Karma) y para quien se incorpora y aún no conoce el estándar.
 
-**Estado:** `0.2.0-alpha.1` · Node.js 22 o superior · Linux, macOS y Windows
+**Estado:** `0.2.0-alpha.2` · Node.js 22 o superior · Linux, macOS y Windows
 
 ```text
 # Ejemplo abreviado de la salida
@@ -29,11 +29,11 @@ Cada regla explica **cómo cumplirla**. No ejecuta tus pruebas ni modifica tu c�
 
 ## Empezar
 
-1. Descarga `standards-auditor-0.2.0-alpha.1.tgz` desde las [Releases](https://github.com/soporte605/standards-auditor/releases) (no el "Source code").
+1. Descarga `standards-auditor-0.2.0-alpha.2.tgz` desde las [Releases](https://github.com/soporte605/standards-auditor/releases) (no el "Source code").
 2. En tu proyecto:
 
 ```sh
-npm install --save-dev /ruta/al/standards-auditor-0.2.0-alpha.1.tgz
+npm install --save-dev /ruta/al/standards-auditor-0.2.0-alpha.2.tgz
 npx standards-auditor init     # detecta TypeScript, Angular y tu runner
 npx standards-auditor check    # resumen en consola
 npx standards-auditor check --open   # reporte visual en el navegador

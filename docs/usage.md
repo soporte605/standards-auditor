@@ -1,6 +1,6 @@
 # Referencia de uso y configuración
 
-Estas opciones corresponden a `0.2.0-alpha.1`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
+Estas opciones corresponden a `0.2.0-alpha.2`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
 
 ## Adjuntar las guías del equipo
 

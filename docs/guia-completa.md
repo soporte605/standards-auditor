@@ -71,7 +71,7 @@ npx standards-auditor check --details
 npx standards-auditor check --open
 ```
 
-`--open` genera `reports/standards-auditor.html` y solicita abrirlo en el navegador. El reporte contiene gráficas de cobertura cuando hay datos, árbol de archivos y hallazgos desplegables. Funciona sin internet.
+`--open` genera `reports/standards-auditor.html` y solicita abrirlo en el navegador. El reporte tiene pestañas de Resumen, Reglas, Mapa del proyecto, Cobertura, Hallazgos y Notas (ver [uso](usage.md)). Funciona sin internet.
 
 ## Configura los estándares de tu equipo
 

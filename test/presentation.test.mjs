@@ -160,11 +160,8 @@ test('coverage graphics show imported values including zero, while absence never
   assert.match(html, /aria-label="Ramas: 40%"/);
   assert.match(html, /aria-label="Funciones: 90%"/);
   assert.match(html, /aria-label="Sentencias: 80%"/);
-  assert.match(
-    html,
-    /<details class="disclosure inventory" id="inventory-details">/,
-  );
-  assert.match(html, /<details class="disclosure" id="findings-details">/);
+  assert.match(html, /id="panel-mapa"/);
+  assert.match(html, /id="panel-hallazgos"/);
   const missing = renderHtml(withCoverage(null), {
     project: 'Example',
     generatedAt: new Date(),

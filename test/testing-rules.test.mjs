@@ -103,8 +103,8 @@ test('HTML report shows project health with guidance for failing rules', async (
   const output = path.join(root, 'out.html');
   run(root, 'check', '--format', 'html', '--output', output);
   const html = await readFile(output, 'utf8');
-  assert.match(html, /Salud del proyecto/);
-  assert.match(html, /0<small> \/ 2 reglas cumplidas/);
+  assert.match(html, /Reglas cumplidas/);
+  assert.match(html, /0<small>\/ 2<\/small>/);
   assert.match(html, /Cómo cumplirla/);
 });
 
@@ -118,6 +118,7 @@ test('init suggests packs and exclusions from package.json', async (t) => {
   const init = run(root, 'init');
   assert.equal(init.status, 0);
   assert.match(init.stdout, /Angular · Vitest/);
+  assert.match(init.stdout, /typescript-tests, testing y angular\./);
   const written = await readFile(path.join(root, 'auditor.yaml'), 'utf8');
   assert.match(written, /builtin:testing/);
   assert.match(written, /\*\.module\.ts/);
@@ -157,8 +158,10 @@ const note = 'fit and xit inside a string are fine';
     by('angular.artifacts-have-tests').map((item) => item.path),
     ['src/user.component.ts'],
   );
-  assert.equal(by('angular.no-explicit-any').length, 1);
-  assert.equal(by('angular.no-ts-suppression').length, 1);
+  assert.equal(
+    by('angular.artifacts-have-tests')[0].suggestion,
+    'src/user.component.spec.ts',
+  );
   const missing = report.ruleResults.find(
     (item) => item.ruleId === 'angular.coverage-minimum',
   );
@@ -247,4 +250,116 @@ packs: ['${reference}']
     assert.equal(result.status, 2, reference);
     assert.match(result.stderr, /Pack compartido|Referencia|Ruta/);
   }
+});
+
+test('a missing test names the file to create, in console, JSON and HTML', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:angular]
+`,
+    'src/app/user.service.ts': 'export class UserService {}\n',
+    'src/app/user.service.spec.ts.bak': 'x\n',
+  });
+  const json = JSON.parse(run(root, 'check', '--format', 'json').stdout);
+  const finding = json.findings.find(
+    (item) => item.ruleId === 'angular.artifacts-have-tests',
+  );
+  assert.equal(finding.suggestion, 'src/app/user.service.spec.ts');
+  assert.match(
+    run(root, 'check', '--details').stdout,
+    /→ crea src\/app\/user\.service\.spec\.ts/,
+  );
+  const output = path.join(root, 'out.html');
+  run(root, 'check', '--format', 'html', '--output', output);
+  const html = await readFile(output, 'utf8');
+  assert.match(html, /data-copy="src\/app\/user\.service\.spec\.ts"/);
+  assert.match(html, /class="verdict" data-tone="/);
+});
+
+test('rule adjustments scope a pack to one app of a monorepo and change its threshold', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:angular]
+rules:
+  angular.artifacts-have-tests:
+    sources: ['apps/web/**/*.{component,service}.ts']
+    minimum: 100
+  angular.coverage-minimum:
+    severity: error
+    minimum: { lines: 70 }
+`,
+    'apps/web/src/a.service.ts': 'export class A {}\n',
+    'apps/web/src/b.component.ts': 'export class B {}\n',
+    'apps/web/src/b.component.spec.ts': 'export {};\n',
+    'apps/api/src/c.service.ts': 'export class C {}\n',
+  });
+  const report = JSON.parse(run(root, 'check', '--format', 'json').stdout);
+  const missing = report.findings
+    .filter((item) => item.ruleId === 'angular.artifacts-have-tests')
+    .map((item) => item.path);
+  assert.deepEqual(missing, ['apps/web/src/a.service.ts']);
+  const coverage = report.coverageEvaluations.filter(
+    (item) => item.ruleId === 'angular.coverage-minimum',
+  );
+  assert.equal(coverage.length, 1);
+  assert.equal(coverage[0].minimum, 70);
+  assert.equal(coverage[0].severity, 'error');
+  // Sources outside src/ appear in the inventory by default (monorepos).
+  assert.ok(report.inventory.summary.sources >= 3);
+});
+
+test('unsupported or malformed rule adjustments fail with a clear message', async (t) => {
+  for (const [adjust, message] of [
+    [
+      '  testing.has-unit-tests:\n    minimum: 50\n',
+      /no admite el ajuste minimum/,
+    ],
+    [
+      '  angular.artifacts-have-tests:\n    minimum: { lines: 70 }\n',
+      /porcentaje/,
+    ],
+    ['  angular.coverage-minimum:\n    minimum: 80\n', /objeto por métrica/],
+    ['  angular.artifacts-have-tests: {}\n', /al menos un ajuste/],
+  ]) {
+    const root = await fixture(t, {
+      'auditor.yaml': `schema-version: 1
+packs: [builtin:testing, builtin:angular]
+rules:
+${adjust}`,
+    });
+    const result = run(root, 'check');
+    assert.equal(result.status, 2, adjust);
+    assert.match(result.stderr, message);
+  }
+});
+
+test('the report is organized in tabs, with one map cell per source and escaped attributes', async (t) => {
+  const root = await fixture(t, {
+    'auditor.yaml': `schema-version: 1
+packs: [builtin:testing]
+rules:
+  testing.source-has-test: error
+`,
+    'src/a.ts': 'export const a = 1;\n',
+    'src/a.spec.ts': 'export {};\n',
+    "src/b&c'd.ts": 'export const b = 1;\n',
+  });
+  const output = path.join(root, 'out.html');
+  run(root, 'check', '--format', 'html', '--output', output);
+  const html = await readFile(output, 'utf8');
+  for (const id of [
+    'resumen',
+    'reglas',
+    'mapa',
+    'cobertura',
+    'hallazgos',
+    'notas',
+  ])
+    assert.match(html, new RegExp(`role="tabpanel" id="panel-${id}"`));
+  assert.equal((html.match(/class="cell"/g) ?? []).length, 2);
+  assert.match(html, /data-has="1"/);
+  assert.match(html, /data-has="0"/);
+  assert.ok(html.includes('b&amp;c&#39;d.ts'));
+  assert.ok(!html.includes("b&c'd.ts"));
+  assert.equal((html.match(/<script>/g) ?? []).length, 1);
 });

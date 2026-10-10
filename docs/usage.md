@@ -1,6 +1,6 @@
 # Referencia de uso y configuración
 
-Estas opciones corresponden a `0.2.0-alpha.1`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
+Estas opciones corresponden a `0.2.0-alpha.2`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
 
 ## Adjuntar las guías del equipo
 
@@ -66,7 +66,18 @@ npx standards-auditor check --format html --output reports/auditoria.html
 
 `--open` genera el reporte y solicita abrirlo en el navegador predeterminado. `--format html` solo lo guarda y muestra su ruta. Si la apertura falla, conserva el archivo y avisa sin cambiar el resultado de la auditoría. La salida predeterminada es `reports/standards-auditor.html`, relativa al directorio desde el que ejecutas el comando, incluso si usas `--config`. Crea las carpetas necesarias y reemplaza el reporte anterior de esa ruta. `--output` se usa con `--format html` o `--open` y admite extensiones `.html` o `.htm`. No se combina `--open` con JSON/texto explícito ni `--details` con HTML.
 
-La primera vista muestra el resultado y gráficas circulares de líneas, ramas, funciones y sentencias cuando existen totales de cobertura importados. Un panel independiente resume las pruebas asociadas. El árbol, los hallazgos, el origen de los datos y las notas quedan plegados para consultarlos a petición; los filtros y la búsqueda están dentro de cada detalle. Es un único archivo que funciona sin internet ni recursos externos. Puedes compartirlo o imprimirlo desde el navegador; la impresión incluye todos los hallazgos aunque haya filtros activos. Sin JavaScript, el detalle sigue siendo visible.
+El reporte se organiza en seis pestañas, cada una con un trabajo:
+
+| Pestaña   | Qué muestra                                                                                                                                                       |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Resumen   | Veredicto, cuatro indicadores (reglas cumplidas, fuentes con prueba, cobertura de líneas, hallazgos), por dónde empezar y las carpetas con más pruebas pendientes |
+| Reglas    | Cada regla con su estado, los archivos afectados, la ruta de la prueba a crear (con botón de copiar) y «Cómo cumplirla»; las que cumplen quedan plegadas          |
+| Mapa      | Una celda por archivo fuente, agrupada por carpeta y coloreada por prueba asociada o por cobertura; vista alternativa en árbol con búsqueda y filtros             |
+| Cobertura | Métricas globales con el objetivo de líneas, mínimos exigidos con su evidencia y los archivos con menos cobertura; sin reporte, explica cómo conectarlo           |
+| Hallazgos | Listado completo con filtros por severidad y regla, y búsqueda                                                                                                    |
+| Notas     | Observaciones de alcance y guías del equipo                                                                                                                       |
+
+Es un único archivo que funciona sin internet ni recursos externos. Usa tema oscuro o claro según tu sistema. Puedes compartirlo o imprimirlo: la impresión incluye todas las pestañas. Sin JavaScript, todas las secciones se muestran seguidas.
 
 El reporte se genera también cuando hay incumplimientos (`1`) o evidencia obligatoria de cobertura incompleta (`2`). Errores de configuración o escritura devuelven `2` y pueden impedir la generación. El navegador solo se solicita con `--open`. El formato JSON conserva su comportamiento; la consola es resumida por defecto. El HTML muestra hallazgos y, cuando se aporta un reporte compatible, cobertura medida. No calcula una calificación de calidad. Ten en cuenta que contiene rutas relativas y mensajes de tu proyecto.
 

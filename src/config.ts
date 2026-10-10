@@ -98,9 +98,7 @@ const testPattern = relativePath.refine((value) => {
 const inventorySchema = z.strictObject({
   enabled: z.boolean().default(true),
   include: patterns.default([
-    'src/**',
-    'test/**',
-    'tests/**',
+    '**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}',
     'README.md',
     'package.json',
     'auditor.yaml',
@@ -133,11 +131,37 @@ const inventorySchema = z.strictObject({
     .default({}),
   'max-files': z.number().int().min(1).max(10000).default(1000),
 });
+const ruleOverride = z.union([
+  z.enum(['off', 'warning', 'error']),
+  z
+    .strictObject({
+      severity: z.enum(['warning', 'error']).optional(),
+      minimum: z.union([z.number().min(0).max(100), minimumSchema]).optional(),
+      sources: patterns.optional(),
+      'source-exclude': z.array(relativePath).optional(),
+      include: patterns.optional(),
+    })
+    .refine(
+      (value) => Object.keys(value).length > 0,
+      'Indica al menos un ajuste',
+    ),
+]);
+// Which adjustments each detector accepts besides severity.
+const adjustable: Record<string, string[]> = {
+  'source-has-test': ['minimum', 'sources', 'source-exclude'],
+  'coverage-thresholds': ['minimum'],
+  'tests-exist': ['include'],
+  'forbidden-files': ['include'],
+  'typescript-no-any': ['include'],
+  'typescript-no-suppression': ['include'],
+  'typescript-forbidden-api': ['include'],
+  'required-files': [],
+};
 const configSchema = z.strictObject({
   'schema-version': z.literal(1),
   packs: strings,
   exclude: z.array(relativePath).default([]),
-  rules: z.record(z.string(), z.enum(['off', 'warning', 'error'])).default({}),
+  rules: z.record(z.string(), ruleOverride).default({}),
   inventory: inventorySchema.prefault({}),
 });
 
@@ -225,11 +249,36 @@ export async function loadConfig(configFile: string): Promise<ProjectConfig> {
       collected.set(rule.id, rule);
     }
   }
-  for (const [id, severity] of Object.entries(config.rules)) {
+  for (const [id, override] of Object.entries(config.rules)) {
     const rule = collected.get(id);
     if (!rule) throw new Error(`Regla desconocida en configuración: ${id}`);
-    if (severity === 'off') collected.delete(id);
-    else collected.set(id, { ...rule, severity });
+    if (override === 'off') collected.delete(id);
+    else if (typeof override === 'string')
+      collected.set(id, { ...rule, severity: override });
+    else {
+      const allowed = adjustable[rule.detector] ?? [];
+      const { severity, ...adjustments } = override;
+      for (const key of Object.keys(adjustments))
+        if (!allowed.includes(key))
+          throw new Error(
+            `La regla ${id} (${rule.detector}) no admite el ajuste ${key}. Admite: ${['severity', ...allowed].join(', ')}.`,
+          );
+      if (
+        'minimum' in adjustments &&
+        (typeof adjustments.minimum === 'number') !==
+          (rule.detector === 'source-has-test')
+      )
+        throw new Error(
+          rule.detector === 'source-has-test'
+            ? `El ajuste minimum de ${id} es un porcentaje (número).`
+            : `El ajuste minimum de ${id} es un objeto por métrica (lines, branches…).`,
+        );
+      collected.set(id, {
+        ...rule,
+        ...adjustments,
+        ...(severity ? { severity } : {}),
+      } as Rule);
+    }
   }
   return {
     root,

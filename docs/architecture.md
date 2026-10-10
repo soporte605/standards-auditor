@@ -11,12 +11,9 @@ La CLI se compila a JavaScript ESM y se distribuye como paquete npm para Node.js
 - `src/inventory.ts`: inventario de archivos, asociación por convenciones y presentación de cobertura.
 - `src/coverage-data.ts`: lector común de Istanbul json-summary, porcentajes y procedencia.
 - `src/coverage-rules.ts`: evaluación de mínimos globales sin ejecutar el runner.
-- `src/inventory-html.ts`: árbol expandible y estados visuales del inventario.
-- `src/html-report.ts`: composición HTML independiente con contenido escapado y filtros locales.
-- `src/overview-html.ts` y `src/report-styles.ts`: gráficas de métricas importadas y presentación del resumen.
+- `src/html-report.ts`: composición del reporte HTML independiente en pestañas; las vistas están en `report-overview.ts` (resumen y reglas), `report-map.ts` (mapa y cobertura) y `report-lists.ts` (hallazgos y notas), con el tema en `report-css.ts` y la interacción en `report-script.ts`. El contenido del proyecto se escapa y solo llega al script mediante atributos `data-*`.
 - `src/test-association.ts`: asociación de fuentes con sus pruebas, compartida por el inventario y la regla `source-has-test`.
 - `src/detect.ts`: detección de TypeScript, framework y runner en `package.json` para sugerir la configuración de `init`.
-- `src/health-html.ts`: panel «Salud del proyecto» con el estado de cada regla.
 - `src/engine.ts`: ejecución de detectores y hallazgos normalizados.
 - `packs/*.yaml`: configuración declarativa de los detectores incorporados.
 - `scripts/release-notes.mjs`: extrae del CHANGELOG las notas de una versión para la Release.

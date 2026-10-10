@@ -85,14 +85,13 @@ export function suggestedConfig(detection: Detection): string {
 # Ajusta packs, severidades y exclusiones a los estándares de tu equipo.
 schema-version: 1
 packs:
-  - builtin:docs
   - builtin:typescript-tests
   - builtin:testing
 ${angular ? '  - builtin:angular\n' : ''}  # - ./rules/team.yaml
 exclude: []
 rules:
   # Cambia la severidad (error, warning) o desactiva una regla con off.
-${angular ? '  # Con Angular se exige prueba a componentes, servicios y demás artefactos.\n  testing.source-has-test: off' : '  # testing.source-has-test: error\n  {}'}
+${angular ? '  # Con Angular se exige prueba a componentes, servicios y demás artefactos.\n  testing.source-has-test: off\n  # En un monorepo, limita la regla a tu app Angular y ajusta el umbral:\n  # angular.artifacts-have-tests:\n  #   sources: ["apps/web/**/*.{component,service,directive,pipe,guard,resolver}.ts"]\n  #   minimum: 80' : '  # testing.source-has-test: error\n  {}'}
 inventory:
   enabled: true
   # Archivos que no necesitan una prueba propia.

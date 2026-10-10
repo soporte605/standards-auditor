@@ -7,6 +7,32 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [0.2.0-alpha.2] - 2026-10-09
+
+### Cambiado
+
+- El producto se centra en la salud de las pruebas unitarias: `init` activa `typescript-tests`, `testing` y, con Angular, `angular`. Los packs `docs` y las reglas de tipado quedan como opcionales (ejemplo en `examples/packs/`).
+- `builtin:angular` contiene solo reglas de pruebas.
+- Reporte HTML rediseñado en seis pestañas (Resumen, Reglas, Mapa, Cobertura, Hallazgos y Notas): indicadores, «por dónde empezar», mapa con una celda por archivo (por prueba o por cobertura) y árbol, cobertura con mínimos y archivos peor cubiertos, y listado filtrable. Tipografía sans-serif de sistema, selector de tema (sistema, claro u oscuro) que recuerda tu elección, diseño adaptable de móvil a escritorio y colores de estado con ícono y texto.
+- README de una pantalla; la guía anterior pasa a `docs/guia-completa.md`.
+
+### Añadido
+
+- Ajustes por regla en `auditor.yaml`: además de la severidad, `minimum`, `sources`, `source-exclude` e `include` según el detector, para acotar un pack a una app de un monorepo o cambiar un umbral sin copiarlo.
+- Cada hallazgo de «falta una prueba» incluye `suggestion`, la ruta del archivo de prueba a crear, en consola (`--details`), JSON y HTML.
+
+### Corregido
+
+- El inventario ya no se limita a `src/` en la raíz: con monorepos (`apps/`, `packages/`) muestra las fuentes reales en lugar de «sin fuentes».
+
+### Eliminado
+
+- Documentos de visión ampliada (roadmap, contrato de producto y de configuración); se conservan en la rama `docs/vision-ampliada`.
+
+### Corregido
+
+- `init` menciona el pack `angular` entre los packs activados cuando detecta Angular.
+
 ## [0.2.0-alpha.1] - 2026-10-09
 
 ### Añadido
@@ -60,6 +86,7 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 - Manifiestos Cargo y fuentes Rust de la rama de desarrollo; conservados en el historial Git.
 
-[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.1...HEAD
+[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.2...HEAD
+[0.2.0-alpha.2]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.1...v0.2.0-alpha.2
 [0.2.0-alpha.1]: https://github.com/soporte605/standards-auditor/compare/v0.1.0-alpha.1...v0.2.0-alpha.1
 [0.1.0-alpha.1]: https://github.com/soporte605/standards-auditor/tree/v0.1.0-alpha.1

@@ -342,7 +342,7 @@ rules:
 `,
     'src/a.ts': 'export const a = 1;\n',
     'src/a.spec.ts': 'export {};\n',
-    'src/b"><img src=x onerror=alert(1)>.ts': 'export const b = 1;\n',
+    "src/b&c'd.ts": 'export const b = 1;\n',
   });
   const output = path.join(root, 'out.html');
   run(root, 'check', '--format', 'html', '--output', output);
@@ -359,6 +359,7 @@ rules:
   assert.equal((html.match(/class="cell"/g) ?? []).length, 2);
   assert.match(html, /data-has="1"/);
   assert.match(html, /data-has="0"/);
-  assert.ok(!html.includes('<img src=x'));
+  assert.ok(html.includes('b&amp;c&#39;d.ts'));
+  assert.ok(!html.includes("b&c'd.ts"));
   assert.equal((html.match(/<script>/g) ?? []).length, 1);
 });

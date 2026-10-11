@@ -97,6 +97,14 @@ time{color:var(--ink2);font-size:12px;white-space:nowrap}
 .copy{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:550;display:inline-flex;gap:4px;align-items:center}
 .copy:hover{border-color:var(--accent);color:var(--accent-ink)}
 .more{color:var(--ink2);font-size:12px;padding:8px 12px}
+.rule-stats{margin:10px 0 0 34px;display:flex;gap:12px;align-items:center;font-size:12px;color:var(--ink2);flex-wrap:wrap}
+.rule-stats .meter{width:180px;margin-top:0;flex:none}
+.folders{margin-top:8px;display:grid;gap:6px}
+.folder{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.folder>summary{padding:8px 12px;display:flex;gap:8px;align-items:center;list-style:none;background:var(--raise)}
+.folder>summary::before{content:'▸';color:var(--ink2)}
+.folder[open]>summary::before{content:'▾'}
+.folder ul{border:0;border-radius:0;margin:0}
 .passed{margin-top:14px}
 .passed>summary{font-weight:600;padding:12px 20px;list-style:none;display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px}
 .passed[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:0}
@@ -175,7 +183,7 @@ time{order:3;width:100%}
 .row,.rule,.finding,.note{padding-left:14px;padding-right:14px}
 .row{flex-wrap:wrap}.row .go{margin-left:34px}
 .rule-head{flex-wrap:wrap}.rule-meta{margin-left:34px}
-.how,.files{margin-left:0}
+.how,.files,.rule-stats{margin-left:0}
 .finding{grid-template-columns:auto minmax(0,1fr)}.finding>.finding-aside{grid-column:2}
 .toolbar{gap:8px}.toolbar>*{flex:1 1 auto}.toolbar .seg{display:flex}.toolbar .seg button{flex:1}
 input[type=search]{max-width:none;min-width:0;width:100%}

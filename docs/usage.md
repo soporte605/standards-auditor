@@ -1,6 +1,6 @@
 # Referencia de uso y configuración
 
-Estas opciones corresponden a `0.2.0-alpha.4`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
+Estas opciones corresponden a `0.2.0-alpha.5`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
 
 ## Sugerir packs y ajustes
 
@@ -26,6 +26,8 @@ npx standards-auditor check --details
 ```
 
 `--id` es obligatorio: segmentos en minúsculas separados por puntos, con números o guiones después de la letra inicial. `--include` puede repetirse; si se omite, el ámbito registrado es `**/*`. Son ámbitos declarados para futura planificación/revisión; esta entrega no interpreta el Markdown ni calcula qué archivos cumplen sus instrucciones.
+
+**Muchos hallazgos de una misma regla.** Cuando una regla tiene más de 15 hallazgos (por ejemplo, un proyecto casi sin pruebas), `--details` no imprime un renglón por archivo: muestra una línea por regla con el total y el porcentaje de fuentes con prueba (`0 de 320 (0%) tienen una; mínimo 80%`), y debajo las carpetas con más archivos pendientes. Usa `npx standards-auditor check --all` para listar cada archivo. El JSON no se agrupa nunca, y el reporte HTML agrupa en carpetas plegables sin ocultar ningún archivo.
 
 La copia queda en `.auditor/rules/<id>.md` y el registro en `.auditor/guides.yaml`. Ambos se pueden versionar en Git. El registro guarda nombre de origen, ámbito y SHA-256 importado; no guarda la ruta absoluta original. Puedes editar la copia: el listado mostrará `modificada` y su hash actual. La fuente externa no se sincroniza automáticamente.
 

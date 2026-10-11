@@ -174,7 +174,7 @@ export interface ProjectConfig {
   inventory: InventoryConfig;
 }
 
-async function readYaml(file: string): Promise<unknown> {
+export async function readYaml(file: string): Promise<unknown> {
   const document = parseDocument(await readFile(file, 'utf8'), {
     uniqueKeys: true,
   });
@@ -223,15 +223,32 @@ async function resolveSharedPack(
   );
 }
 
+export const builtinPacks = [
+  'docs',
+  'typescript-tests',
+  'testing',
+  'angular',
+] as const;
+
 export async function loadConfig(configFile: string): Promise<ProjectConfig> {
-  const root = path.dirname(path.resolve(configFile));
-  const config = configSchema.parse(await readYaml(configFile));
+  return buildConfig(
+    path.dirname(path.resolve(configFile)),
+    await readYaml(configFile),
+  );
+}
+
+/** Builds a project configuration from an already-parsed auditor.yaml object. */
+export async function buildConfig(
+  root: string,
+  raw: unknown,
+): Promise<ProjectConfig> {
+  const config = configSchema.parse(raw);
   const collected = new Map<string, Rule>();
   for (const reference of config.packs) {
     let packFile: string;
     if (reference.startsWith('builtin:')) {
       const name = reference.slice('builtin:'.length);
-      if (!['docs', 'typescript-tests', 'testing', 'angular'].includes(name)) {
+      if (!(builtinPacks as readonly string[]).includes(name)) {
         throw new Error(`Paquete incorporado desconocido: ${name}`);
       }
       packFile = fileURLToPath(

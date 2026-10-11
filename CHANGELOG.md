@@ -18,6 +18,7 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Añadido
 
+- Comando `suggest`: detecta el proyecto, indica qué packs incorporados encajan y qué encontrarían hoy, propone un `minimum` que pasa hoy para adoptar las reglas poco a poco, y con `--write` añade a `auditor.yaml` los packs recomendados conservando sus comentarios.
 - Ajustes por regla en `auditor.yaml`: además de la severidad, `minimum`, `sources`, `source-exclude` e `include` según el detector, para acotar un pack a una app de un monorepo o cambiar un umbral sin copiarlo.
 - Cada hallazgo de «falta una prueba» incluye `suggestion`, la ruta del archivo de prueba a crear, en consola (`--details`), JSON y HTML.
 

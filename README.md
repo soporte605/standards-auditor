@@ -41,6 +41,15 @@ npx standards-auditor check --open   # reporte visual en el navegador
 
 `check` devuelve `1` si hay errores, por lo que sirve en CI y como hook de `pre-push`. Con Angular activa `builtin:angular` automáticamente.
 
+## No sabes por dónde empezar
+
+```sh
+npx standards-auditor suggest          # qué packs encajan con tu proyecto y qué encontrarían hoy
+npx standards-auditor suggest --write  # añade a auditor.yaml los recomendados
+```
+
+`suggest` no modifica nada sin `--write`. Propone un `minimum` que pasa hoy para adoptar las reglas poco a poco.
+
 ## Ajustar las reglas de tu equipo
 
 ```yaml

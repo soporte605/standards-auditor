@@ -7,6 +7,7 @@ import { renderHtml } from './html-report.js';
 import { renderText } from './text-report.js';
 import { addGuide, loadGuides } from './guides.js';
 import { detectProject, suggestedConfig } from './detect.js';
+import { applySuggestion, renderSuggestion, suggest } from './suggest.js';
 
 const initialConfig = `# Activa solo los paquetes que correspondan a tu proyecto.
 schema-version: 1
@@ -48,6 +49,7 @@ export async function runCli(
       output: { type: 'string', short: 'o' },
       open: { type: 'boolean' },
       details: { type: 'boolean' },
+      write: { type: 'boolean' },
       id: { type: 'string' },
       include: { type: 'string', multiple: true },
     },
@@ -63,6 +65,8 @@ Uso:
   standards-auditor check --format json   Emitir un reporte JSON
   standards-auditor check --format html   Guardar un reporte HTML visual
   standards-auditor explain <regla>       Explicar una regla habilitada
+  standards-auditor suggest               Proponer packs y ajustes según tu proyecto
+  standards-auditor suggest --write       Añadir a auditor.yaml los packs recomendados
   standards-auditor rules add <guia.md> --id <id> [--include <glob>]
   standards-auditor rules list            Mostrar guías y ámbitos registrados
 
@@ -132,17 +136,24 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
   if (values.id !== undefined || values.include !== undefined)
     throw new Error('--id y --include solo se usan con rules add.');
   if (
-    !['init', 'check', 'explain'].includes(command ?? '') ||
+    !['init', 'check', 'explain', 'suggest'].includes(command ?? '') ||
     extra.length ||
     (command === 'explain' ? !id : id !== undefined)
   )
     throw new Error('Comando inválido. Consulta --help.');
   if (
     values.format !== undefined &&
-    (command !== 'check' || !['text', 'json', 'html'].includes(values.format))
+    (command === 'suggest'
+      ? !['text', 'json'].includes(values.format)
+      : command !== 'check' ||
+        !['text', 'json', 'html'].includes(values.format))
   ) {
-    throw new Error('Usa --format text, json o html con check.');
+    throw new Error(
+      'Usa --format text, json o html con check, o text o json con suggest.',
+    );
   }
+  if (values.write && command !== 'suggest')
+    throw new Error('--write solo se usa con suggest.');
   if (
     values.open &&
     (command !== 'check' ||
@@ -177,6 +188,20 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
     log(
       `Configuración creada: ${configFile}${suggested ? `\nDetectado: TypeScript${suggested.framework ? ` · ${suggested.framework}` : ''}${suggested.runner ? ` · ${suggested.runner}` : ''}. Se activaron los packs typescript-tests, testing${suggested.framework === 'Angular' ? ' y angular' : ''}.` : ''}\nEdita sus paquetes y ejecuta standards-auditor check.`,
     );
+    return 0;
+  }
+  if (command === 'suggest') {
+    const result = await suggest(configFile);
+    const project = path.basename(path.dirname(configFile));
+    if (values.write) {
+      const applied = await applySuggestion(result);
+      log(
+        applied.added.length || applied.disabled.length
+          ? `auditor.yaml actualizado.${applied.added.length ? `\nPacks añadidos: ${applied.added.join(', ')}` : ''}${applied.disabled.length ? `\nReglas desactivadas por duplicadas: ${applied.disabled.join(', ')}` : ''}\nEjecuta standards-auditor check para ver el resultado.`
+          : 'auditor.yaml ya tiene todo lo recomendado; no se cambió nada.',
+      );
+    } else if (format === 'json') log(JSON.stringify(result, null, 2));
+    else log(renderSuggestion(result, project));
     return 0;
   }
   const config = await loadConfig(configFile);

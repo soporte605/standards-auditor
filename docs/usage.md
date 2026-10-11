@@ -1,6 +1,19 @@
 # Referencia de uso y configuración
 
-Estas opciones corresponden a `0.2.0-alpha.2`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
+Estas opciones corresponden a `0.2.0-alpha.3`, con configuración y packs de esquema v1. Para instalar y realizar la primera auditoría, consulta el [README](../README.md).
+
+## Sugerir packs y ajustes
+
+```sh
+standards-auditor suggest [--config <ruta>] [--format text|json]
+standards-auditor suggest --write
+```
+
+Detecta el lenguaje, el framework y el runner, y para cada pack incorporado indica si ya lo tienes activo, si se recomienda, es opcional o no aplica, y **qué encontraría hoy en tu proyecto** (errores y avisos, probados en seco con el `inventory` y los `exclude` de tu `auditor.yaml`).
+
+Cuando una regla de «cada fuente tiene su prueba» no se cumple, propone un `minimum` igual al porcentaje actual: el CI pasa hoy y puedes subirlo poco a poco. En un repositorio con varios paquetes avisa de que conviene acotar `sources` a tu app.
+
+`--write` añade a `packs` los packs recomendados que falten, conserva tus comentarios y, si hay Angular y `testing`, desactiva `testing.source-has-test` por duplicar a la regla de Angular. Es idempotente y no crea el archivo: usa antes `init`. Con `--format json` devuelve la propuesta completa.
 
 ## Adjuntar las guías del equipo
 

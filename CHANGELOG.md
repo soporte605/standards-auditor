@@ -7,6 +7,12 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [0.2.0-alpha.3] - 2026-10-11
+
+### Añadido
+
+- Comando `suggest`: detecta el proyecto, indica qué packs incorporados encajan y qué encontrarían hoy, propone un `minimum` que pasa hoy para adoptar las reglas poco a poco, y con `--write` añade a `auditor.yaml` los packs recomendados conservando sus comentarios.
+
 ## [0.2.0-alpha.2] - 2026-10-09
 
 ### Cambiado
@@ -86,7 +92,8 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 - Manifiestos Cargo y fuentes Rust de la rama de desarrollo; conservados en el historial Git.
 
-[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.2...HEAD
+[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.3...HEAD
+[0.2.0-alpha.3]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.2...v0.2.0-alpha.3
 [0.2.0-alpha.2]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.1...v0.2.0-alpha.2
 [0.2.0-alpha.1]: https://github.com/soporte605/standards-auditor/compare/v0.1.0-alpha.1...v0.2.0-alpha.1
 [0.1.0-alpha.1]: https://github.com/soporte605/standards-auditor/tree/v0.1.0-alpha.1

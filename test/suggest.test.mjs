@@ -133,3 +133,36 @@ test('suggest handles projects it cannot classify and invalid usage', async (t) 
   assert.equal(run(plain, 'suggest', '--format', 'html').status, 2);
   assert.equal(run(plain, 'check', '--write').status, 2);
 });
+
+test('init and suggest agree: after init there is nothing left to recommend', async (t) => {
+  const cases = {
+    angular,
+    typescript: {
+      'package.json': JSON.stringify({ devDependencies: { typescript: '5' } }),
+      'src/a.ts': 'export const a = 1;\n',
+    },
+    plain: { 'package.json': '{"name":"x"}' },
+    empty: {},
+  };
+  for (const [name, files] of Object.entries(cases)) {
+    const root = await fixture(t, files);
+    assert.equal(run(root, 'init').status, 0, name);
+    const result = JSON.parse(run(root, 'suggest', '--format', 'json').stdout);
+    assert.deepEqual(result.missing, [], `${name}: nothing pending after init`);
+    const written = await readFile(path.join(root, 'auditor.yaml'), 'utf8');
+    for (const pack of result.packs.filter((p) => p.state === 'active'))
+      assert.match(written, new RegExp(pack.pack), name);
+    assert.equal(
+      run(root, 'check').status === 2,
+      false,
+      `${name}: valid config`,
+    );
+  }
+  const angularRoot = await fixture(t, angular);
+  run(angularRoot, 'init');
+  const written = await readFile(
+    path.join(angularRoot, 'auditor.yaml'),
+    'utf8',
+  );
+  assert.match(written, /testing\.source-has-test: off/);
+});

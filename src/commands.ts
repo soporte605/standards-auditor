@@ -7,7 +7,13 @@ import { renderHtml } from './html-report.js';
 import { renderText } from './text-report.js';
 import { addGuide, loadGuides } from './guides.js';
 import { detectProject, suggestedConfig } from './detect.js';
-import { applySuggestion, renderSuggestion, suggest } from './suggest.js';
+import {
+  applySuggestion,
+  recommendedPacks,
+  redundantRules,
+  renderSuggestion,
+  suggest,
+} from './suggest.js';
 
 const initialConfig = `# Activa solo los paquetes que correspondan a tu proyecto.
 schema-version: 1
@@ -179,14 +185,21 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
   const configFile = path.resolve(values.config ?? 'auditor.yaml');
   if (command === 'init') {
     const detection = await detectProject(path.dirname(configFile));
-    const suggested = detection?.typescript ? detection : null;
+    const packs = recommendedPacks(detection);
+    const suggested = detection && packs.length ? detection : null;
     await writeFile(
       configFile,
-      suggested ? suggestedConfig(suggested) : initialConfig,
+      suggested
+        ? suggestedConfig(suggested, packs, redundantRules(packs))
+        : initialConfig,
       { flag: 'wx' },
     );
+    const list =
+      packs.length > 1
+        ? `${packs.slice(0, -1).join(', ')} y ${packs.at(-1)}`
+        : (packs[0] ?? '');
     log(
-      `Configuración creada: ${configFile}${suggested ? `\nDetectado: TypeScript${suggested.framework ? ` · ${suggested.framework}` : ''}${suggested.runner ? ` · ${suggested.runner}` : ''}. Se activaron los packs typescript-tests, testing${suggested.framework === 'Angular' ? ' y angular' : ''}.` : ''}\nEdita sus paquetes y ejecuta standards-auditor check.`,
+      `Configuración creada: ${configFile}${suggested ? `\nDetectado: TypeScript${suggested.framework ? ` · ${suggested.framework}` : ''}${suggested.runner ? ` · ${suggested.runner}` : ''}. Se activaron los packs ${list}.` : ''}\nSiguiente: standards-auditor check (resultado) y standards-auditor suggest (qué más encaja y cómo adoptarlo).`,
     );
     return 0;
   }

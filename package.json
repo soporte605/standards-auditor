@@ -1,6 +1,6 @@
 {
   "name": "standards-auditor",
-  "version": "0.2.0-alpha.3",
+  "version": "0.2.0-alpha.4",
   "description": "Auditor configurable de estándares de ingeniería mediante paquetes YAML",
   "private": true,
   "license": "MIT",
@@ -25,7 +25,8 @@
     "examples",
     "CONTRIBUTING.md",
     "LICENSE",
-    "SECURITY.md"
+    "SECURITY.md",
+    "!docs/img"
   ],
   "scripts": {
     "build": "tsc",

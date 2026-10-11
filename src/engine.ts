@@ -30,6 +30,8 @@ export interface RuleResult {
   guidance?: string;
   status: 'pass' | 'fail' | 'not-evaluated';
   findings: number;
+  /** Only for source-has-test: how many sources already have a test. */
+  stats?: { covered: number; total: number; percent: number; minimum: number };
 }
 export interface Report {
   schemaVersion: 1;
@@ -131,6 +133,7 @@ export async function audit(config: ProjectConfig): Promise<Report> {
       `Guía ${guide.id}: ${guide.path}; ámbito ${guide.include.join(', ')}; ${guide.modified ? 'modificada desde la importación' : 'contenido original'}. Instrucciones para revisión, sin evaluación automática.`,
   );
   const analyzed = new Set<string>();
+  const testStats = new Map<string, NonNullable<RuleResult['stats']>>();
   const coverageEvaluations: CoverageEvaluation[] = [];
   const coverageEvidence = new Map<string, CoverageData>();
   for (const rule of config.rules) {
@@ -198,6 +201,12 @@ export async function audit(config: ProjectConfig): Promise<Report> {
       const missing = [...sources].filter(([, tests]) => !tests.length);
       const covered = sources.size - missing.length;
       const percent = sources.size ? (covered / sources.size) * 100 : 100;
+      testStats.set(rule.id, {
+        covered,
+        total: sources.size,
+        percent: Math.round(percent),
+        minimum: rule.minimum,
+      });
       if (percent < rule.minimum)
         for (const [file] of missing) {
           const suggestion = suggestTestPath(
@@ -284,6 +293,7 @@ export async function audit(config: ProjectConfig): Promise<Report> {
       ...(rule.guidance ? { guidance: rule.guidance } : {}),
       status: count ? 'fail' : incomplete ? 'not-evaluated' : 'pass',
       findings: count,
+      ...(testStats.has(rule.id) ? { stats: testStats.get(rule.id)! } : {}),
     };
   });
   return {

@@ -70,29 +70,38 @@ export async function detectProject(root: string): Promise<Detection | null> {
   };
 }
 
-export function suggestedConfig(detection: Detection): string {
+export function suggestedConfig(
+  detection: Detection,
+  packs: string[],
+  redundant: string[],
+): string {
   const exclude = [
     ...baseExclude,
     ...(detection.framework
       ? (frameworkExclude[detection.framework] ?? [])
       : []),
   ];
-  const angular = detection.framework === 'Angular';
   const detected = ['TypeScript', detection.framework, detection.runner].filter(
     Boolean,
   );
+  const rules = redundant.length
+    ? `${redundant.map((id) => `  ${id}: off # lo cubre otra regla de los packs activos`).join('\n')}\n`
+    : '  {}\n';
+  const monorepo =
+    detection.framework === 'Angular'
+      ? '  # En un monorepo, limita la regla a tu app Angular y ajusta el umbral:\n  # angular.artifacts-have-tests:\n  #   sources: ["apps/web/**/*.{component,service,directive,pipe,guard,resolver}.ts"]\n  #   minimum: 80\n'
+      : '';
   return `# Configuración sugerida a partir de package.json (${detected.join(' · ')}).
 # Ajusta packs, severidades y exclusiones a los estándares de tu equipo.
+# Con \`standards-auditor suggest\` ves qué más encaja y cómo adoptarlo poco a poco.
 schema-version: 1
 packs:
-  - builtin:typescript-tests
-  - builtin:testing
-${angular ? '  - builtin:angular\n' : ''}  # - ./rules/team.yaml
+${packs.map((pack) => `  - builtin:${pack}`).join('\n')}
+  # - ./rules/team.yaml
 exclude: []
 rules:
   # Cambia la severidad (error, warning) o desactiva una regla con off.
-${angular ? '  # Con Angular se exige prueba a componentes, servicios y demás artefactos.\n  testing.source-has-test: off\n  # En un monorepo, limita la regla a tu app Angular y ajusta el umbral:\n  # angular.artifacts-have-tests:\n  #   sources: ["apps/web/**/*.{component,service,directive,pipe,guard,resolver}.ts"]\n  #   minimum: 80' : '  # testing.source-has-test: error\n  {}'}
-inventory:
+${rules}${monorepo}inventory:
   enabled: true
   # Archivos que no necesitan una prueba propia.
   source-exclude:

@@ -47,6 +47,20 @@ const catalog: CatalogEntry[] = [
   },
 ];
 
+/** Packs worth activating for a project, in the order they should appear. */
+export function recommendedPacks(detection: Detection | null): string[] {
+  return catalog
+    .filter((entry) => !entry.optional && entry.applies(detection))
+    .map((entry) => entry.pack);
+}
+
+/** Rules made redundant by another active pack (switched off by init and suggest --write). */
+export function redundantRules(packs: string[]): string[] {
+  return packs.includes('angular') && packs.includes('testing')
+    ? ['testing.source-has-test']
+    : [];
+}
+
 export interface Adjustment {
   rule: string;
   yaml: string;
@@ -216,14 +230,12 @@ export async function applySuggestion(
     }
   packs = document.get('packs', true);
   const disabled: string[] = [];
-  if (
-    present.has('builtin:angular') &&
-    present.has('builtin:testing') &&
-    document.getIn(['rules', 'testing.source-has-test']) === undefined
-  ) {
-    document.setIn(['rules', 'testing.source-has-test'], 'off');
-    disabled.push('testing.source-has-test');
-  }
+  const names = [...present].map((pack) => pack.replace(/^builtin:/, ''));
+  for (const rule of redundantRules(names))
+    if (document.getIn(['rules', rule]) === undefined) {
+      document.setIn(['rules', rule], 'off');
+      disabled.push(rule);
+    }
   if (added.length || disabled.length)
     await writeFile(result.configFile, document.toString(), 'utf8');
   return { added, disabled };

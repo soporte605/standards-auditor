@@ -7,6 +7,11 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Cambiado
+
+- `init` y `suggest` comparten la misma detección y la misma lista de packs recomendados, y desactivan las mismas reglas redundantes; tras `init`, `suggest` no tiene nada pendiente de activar.
+- README reescrito para explicar mejor qué hace, para quién es y cómo adoptarlo, con capturas del reporte (proyecto de demostración ficticio) en `docs/img/`.
+
 ## [0.2.0-alpha.3] - 2026-10-11
 
 ### Añadido

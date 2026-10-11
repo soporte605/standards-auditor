@@ -28,8 +28,26 @@ test('console summary stays short while details expose all findings and notes', 
   assert.ok(!summary.includes('src/file-'));
   assert.match(summary, /--details/);
   const details = renderText(report, 'Example', true);
-  assert.match(details, /src\/file-39.test.ts/);
   assert.match(details, /NOTA Alcance limitado/);
+  // Many findings of one rule are grouped by folder; --all lists every file.
+  assert.match(details, /\[typescript\.no-any\] 40 archivos/);
+  assert.match(details, /src\/ · 40 archivos/);
+  assert.match(details, /--all/);
+  assert.ok(!details.includes('src/file-39.test.ts'));
+  const all = renderText(report, 'Example', true, true, true);
+  assert.match(all, /src\/file-39.test.ts/);
+  assert.ok(!all.includes('40 archivos'));
+});
+
+test('a rule with few findings keeps one line per file even in details', () => {
+  const few = {
+    ...report,
+    findings: report.findings.slice(0, 3),
+    summary: { ...report.summary, warnings: 3 },
+  };
+  const details = renderText(few, 'Example', true);
+  assert.match(details, /src\/file-2.test.ts/);
+  assert.ok(!details.includes('Agrupado por carpeta'));
 });
 
 async function fixture(t) {

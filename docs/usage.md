@@ -27,6 +27,8 @@ npx standards-auditor check --details
 
 `--id` es obligatorio: segmentos en minúsculas separados por puntos, con números o guiones después de la letra inicial. `--include` puede repetirse; si se omite, el ámbito registrado es `**/*`. Son ámbitos declarados para futura planificación/revisión; esta entrega no interpreta el Markdown ni calcula qué archivos cumplen sus instrucciones.
 
+**Muchos hallazgos de una misma regla.** Cuando una regla tiene más de 15 hallazgos (por ejemplo, un proyecto casi sin pruebas), `--details` no imprime un renglón por archivo: muestra una línea por regla con el total y el porcentaje de fuentes con prueba (`0 de 320 (0%) tienen una; mínimo 80%`), y debajo las carpetas con más archivos pendientes. Usa `npx standards-auditor check --all` para listar cada archivo. El JSON no se agrupa nunca, y el reporte HTML agrupa en carpetas plegables sin ocultar ningún archivo.
+
 La copia queda en `.auditor/rules/<id>.md` y el registro en `.auditor/guides.yaml`. Ambos se pueden versionar en Git. El registro guarda nombre de origen, ámbito y SHA-256 importado; no guarda la ruta absoluta original. Puedes editar la copia: el listado mostrará `modificada` y su hash actual. La fuente externa no se sincroniza automáticamente.
 
 No se sobrescriben guías existentes. Para una segunda guía usa otro ID. Si una guía registrada falta o es inválida, la auditoría termina con código 2. El registro y las copias no admiten symlinks. Importaciones simultáneas se rechazan mediante un lock; después de una interrupción abrupta, elimina `.auditor/guides.lock` solo tras comprobar que no hay otra importación activa.

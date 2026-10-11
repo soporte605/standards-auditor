@@ -7,6 +7,12 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Añadido
+
+- Cuando una regla tiene muchos hallazgos (más de 15), `check --details` los agrupa por carpeta con el total y el porcentaje de fuentes con prueba; `check --all` lista cada archivo.
+- En el reporte HTML, la pestaña Reglas muestra «13 de 29 con prueba (45 %) · mínimo 80 %» con un medidor, y agrupa los archivos en carpetas plegables en lugar de cortar la lista; el Resumen indica en cuántas reglas se reparten los avisos.
+- `ruleResults[].stats` en el JSON (`covered`, `total`, `percent`, `minimum`) para las reglas de «cada fuente tiene su prueba».
+
 ## [0.2.0-alpha.4] - 2026-10-11
 
 ### Cambiado

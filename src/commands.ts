@@ -56,6 +56,7 @@ export async function runCli(
       open: { type: 'boolean' },
       details: { type: 'boolean' },
       write: { type: 'boolean' },
+      all: { type: 'boolean' },
       id: { type: 'string' },
       include: { type: 'string', multiple: true },
     },
@@ -66,7 +67,8 @@ export async function runCli(
 Uso:
   standards-auditor init                  Crear auditor.yaml sin sobrescribirlo
   standards-auditor check                 Mostrar un resumen en consola
-  standards-auditor check --details       Mostrar todos los hallazgos
+  standards-auditor check --details       Mostrar los hallazgos (agrupados por carpeta si son muchos)
+  standards-auditor check --all           Listar cada archivo sin agrupar
   standards-auditor check --open          Generar HTML y abrirlo
   standards-auditor check --format json   Emitir un reporte JSON
   standards-auditor check --format html   Guardar un reporte HTML visual
@@ -158,6 +160,11 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
       'Usa --format text, json o html con check, o text o json con suggest.',
     );
   }
+  if (
+    values.all &&
+    (command !== 'check' || (values.format ?? 'text') !== 'text' || values.open)
+  )
+    throw new Error('--all solo está disponible con check en formato text.');
   if (values.write && command !== 'suggest')
     throw new Error('--write solo se usa con suggest.');
   if (
@@ -266,7 +273,13 @@ El ámbito predeterminado de una guía es **/*; --include admite repetición.`);
   } else if (format === 'json') log(JSON.stringify(report, null, 2));
   else
     log(
-      renderText(report, path.basename(config.root), Boolean(values.details)),
+      renderText(
+        report,
+        path.basename(config.root),
+        Boolean(values.details || values.all),
+        true,
+        Boolean(values.all),
+      ),
     );
   return report.summary.requiredIncomplete ? 2 : report.summary.errors ? 1 : 0;
 }

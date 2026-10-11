@@ -363,3 +363,41 @@ rules:
   assert.ok(!html.includes("b&c'd.ts"));
   assert.equal((html.match(/<script>/g) ?? []).length, 1);
 });
+
+test('a project with almost no tests is summarized per rule and per folder, in console and report', async (t) => {
+  const files = {
+    'auditor.yaml': 'schema-version: 1\npacks: [builtin:angular]\n',
+  };
+  for (const folder of ['orders', 'cart'])
+    for (let i = 0; i < 12; i++)
+      files[`src/app/${folder}/item-${i}.service.ts`] = 'export class A {}\n';
+  const root = await fixture(t, files);
+  const details = run(root, 'check', '--details').stdout;
+  assert.match(
+    details,
+    /\[angular\.artifacts-have-tests\] 24 archivos sin prueba asociada · 0 de 24 \(0%\)/,
+  );
+  assert.match(details, /src\/app\/cart\/ · 12 archivos/);
+  assert.match(details, /src\/app\/orders\/ · 12 archivos/);
+  assert.ok(!details.includes('item-11.service.ts →'));
+  assert.match(run(root, 'check', '--all').stdout, /item-11\.service\.ts/);
+  assert.equal(run(root, 'check', '--all', '--format', 'json').status, 2);
+  const json = JSON.parse(run(root, 'check', '--format', 'json').stdout);
+  assert.equal(json.findings.length, 24, 'JSON stays complete');
+  assert.deepEqual(
+    json.ruleResults.find((r) => r.ruleId === 'angular.artifacts-have-tests')
+      .stats,
+    { covered: 0, total: 24, percent: 0, minimum: 80 },
+  );
+  const output = path.join(root, 'out.html');
+  run(root, 'check', '--format', 'html', '--output', output);
+  const html = await readFile(output, 'utf8');
+  assert.match(html, /24 archivos en 2 carpetas/);
+  assert.match(html, /0 de 24 con prueba \(0%\) · mínimo 80%/);
+  assert.match(html, /24 avisos en 1 regla/);
+  assert.equal(
+    (html.match(/data-copy=/g) ?? []).length >= 24,
+    true,
+    'every file is reachable',
+  );
+});

@@ -1,10 +1,12 @@
 import type { Report } from './engine.js';
+import { groupByFolder, groupThreshold } from './grouping.js';
 
 export function renderText(
   report: Report,
   project: string,
   details = false,
   hint = true,
+  all = false,
 ): string {
   const { errors, warnings, evaluatedRules } = report.summary;
   const lines = [
@@ -68,9 +70,44 @@ export function renderText(
       `Alcance: ${report.notices.length} ${report.notices.length === 1 ? 'nota' : 'notas'} para revisar`,
     );
   if (details) {
+    const perRule = new Map<string, number>();
     for (const finding of report.findings)
+      perRule.set(finding.ruleId, (perRule.get(finding.ruleId) ?? 0) + 1);
+    const grouped = new Set(
+      all
+        ? []
+        : [...perRule].filter(([, n]) => n > groupThreshold).map(([id]) => id),
+    );
+    for (const finding of report.findings.filter(
+      (item) => !grouped.has(item.ruleId),
+    ))
       lines.push(
         `${finding.severity === 'error' ? 'ERROR' : 'AVISO'} ${finding.path}${finding.line ? `:${finding.line}:${finding.column ?? 1}` : ''} [${finding.ruleId}] ${finding.message}${finding.suggestion ? ` → crea ${finding.suggestion}` : ''}`,
+      );
+    for (const ruleId of grouped) {
+      const items = report.findings.filter((item) => item.ruleId === ruleId);
+      const rule = report.ruleResults.find((item) => item.ruleId === ruleId);
+      const stats = rule?.stats
+        ? ` sin prueba asociada · ${rule.stats.covered} de ${rule.stats.total} (${rule.stats.percent}%) tienen una; mínimo ${rule.stats.minimum}%`
+        : '';
+      lines.push(
+        `${items[0]!.severity === 'error' ? 'ERROR' : 'AVISO'} [${ruleId}] ${items.length} archivos${stats}`,
+      );
+      const groups = groupByFolder(items.map((item) => item.path));
+      for (const group of groups.slice(0, 12)) {
+        const names = group.files.map((file) => file.split('/').at(-1)!);
+        lines.push(
+          `  ${group.dir}/ · ${group.files.length} ${group.files.length === 1 ? 'archivo' : 'archivos'}: ${names.slice(0, 2).join(', ')}${names.length > 2 ? ` … (+${names.length - 2})` : ''}`,
+        );
+      }
+      if (groups.length > 12)
+        lines.push(
+          `  … y ${groups.length - 12} carpetas más (${groups.slice(12).reduce((n, g) => n + g.files.length, 0)} archivos)`,
+        );
+    }
+    if (grouped.size)
+      lines.push(
+        'Agrupado por carpeta las reglas con muchos hallazgos; usa --all para listar cada archivo.',
       );
     for (const notice of report.notices) lines.push(`NOTA ${notice}`);
   } else if (hint)

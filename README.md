@@ -9,7 +9,7 @@
 
 Cada equipo decide cuándo un proyecto «tiene sus pruebas». Standards Auditor lo comprueba leyendo tu código, sin ejecutarlo ni modificarlo, y lo muestra en la consola y en un reporte HTML pensado para desarrolladores. Está pensado para equipos con TypeScript (Angular, Vitest, Jest o Karma) y, sobre todo, para quien se incorpora y todavía no conoce el estándar.
 
-**Estado:** `0.2.0-alpha.4` · Node.js 22 o superior · Linux, macOS y Windows · [Licencia MIT](LICENSE)
+**Estado:** `0.2.0-alpha.5` · Node.js 22 o superior · Linux, macOS y Windows · [Licencia MIT](LICENSE)
 
 ## ¿Para qué sirve?
 
@@ -24,7 +24,7 @@ Cada equipo decide cuándo un proyecto «tiene sus pruebas». Standards Auditor 
 3. **`check`** audita y te dice qué falta.
 
 ```sh
-npm install --save-dev /ruta/al/standards-auditor-0.2.0-alpha.4.tgz
+npm install --save-dev /ruta/al/standards-auditor-0.2.0-alpha.5.tgz
 npx standards-auditor init
 npx standards-auditor check          # resumen en consola
 npx standards-auditor check --open   # reporte visual en el navegador

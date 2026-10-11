@@ -7,6 +7,8 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+## [0.2.0-alpha.4] - 2026-10-11
+
 ### Cambiado
 
 - `init` y `suggest` comparten la misma detección y la misma lista de packs recomendados, y desactivan las mismas reglas redundantes; tras `init`, `suggest` no tiene nada pendiente de activar.
@@ -97,7 +99,8 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 - Manifiestos Cargo y fuentes Rust de la rama de desarrollo; conservados en el historial Git.
 
-[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.3...HEAD
+[Sin publicar]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.4...HEAD
+[0.2.0-alpha.4]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.3...v0.2.0-alpha.4
 [0.2.0-alpha.3]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.2...v0.2.0-alpha.3
 [0.2.0-alpha.2]: https://github.com/soporte605/standards-auditor/compare/v0.2.0-alpha.1...v0.2.0-alpha.2
 [0.2.0-alpha.1]: https://github.com/soporte605/standards-auditor/compare/v0.1.0-alpha.1...v0.2.0-alpha.1

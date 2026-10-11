@@ -2,7 +2,7 @@
 
 ## Versión del paquete
 
-`package.json` y `package-lock.json` contienen la versión del motor y la CLI. La versión actual es `0.2.0-alpha.4`, sin publicar en npm. Usar SemVer: antes de `1.0.0`, cambios incompatibles incrementan minor y correcciones compatibles incrementan patch como política interna. Desde `1.0.0`, major indica incompatibilidad, minor nuevas funciones compatibles y patch correcciones. Referencia: https://semver.org/lang/es/.
+`package.json` y `package-lock.json` contienen la versión del motor y la CLI. La versión actual es `0.2.0-alpha.5`, sin publicar en npm. Usar SemVer: antes de `1.0.0`, cambios incompatibles incrementan minor y correcciones compatibles incrementan patch como política interna. Desde `1.0.0`, major indica incompatibilidad, minor nuevas funciones compatibles y patch correcciones. Referencia: https://semver.org/lang/es/.
 
 El esquema YAML y el reporte JSON tienen versiones de formato independientes de la versión del paquete. Los paquetes de reglas incorporados viajan con el motor. La distribución independiente y versionada de paquetes externos está pendiente; por ahora los YAML locales se versionan en Git junto al proyecto.
 
@@ -28,7 +28,7 @@ La Release se crea sola al subir un tag `vX.Y.Z`; el flujo replica el de `monito
 5. Commit `chore(release): vX.Y.Z` y PR hacia `develop`.
 6. Tras fusionar, abrir un PR de `develop` hacia `main` (`gh pr create --base main --head develop --title "chore(release): vX.Y.Z"`) y fusionarlo con CI en verde.
 7. Con `main` actualizado, crear y subir el tag anotado sobre el commit fusionado: `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`.
-8. `.github/workflows/release.yml` ejecuta `npm ci` y `npm run check`, extrae las notas del CHANGELOG, empaqueta el `.tgz`, calcula `SHA256SUMS` y crea la Release. Una versión con guion (`0.2.0-alpha.4`) se marca como prerelease. Seguirlo con `gh run watch` y confirmar que la Release tiene el `.tgz` y `SHA256SUMS`.
+8. `.github/workflows/release.yml` ejecuta `npm ci` y `npm run check`, extrae las notas del CHANGELOG, empaqueta el `.tgz`, calcula `SHA256SUMS` y crea la Release. Una versión con guion (`0.2.0-alpha.5`) se marca como prerelease. Seguirlo con `gh run watch` y confirmar que la Release tiene el `.tgz` y `SHA256SUMS`.
 
 El workflow falla, sin publicar nada, si el tag no coincide con la versión de `package.json` o si la sección del CHANGELOG falta o está vacía. Los tags publicados son inmutables: si una versión sale mal, se corrige con una versión nueva.
 

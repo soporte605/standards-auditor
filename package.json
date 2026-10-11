@@ -25,7 +25,8 @@
     "examples",
     "CONTRIBUTING.md",
     "LICENSE",
-    "SECURITY.md"
+    "SECURITY.md",
+    "!docs/img"
   ],
   "scripts": {
     "build": "tsc",
